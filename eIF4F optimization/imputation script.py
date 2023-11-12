@@ -11,6 +11,7 @@ import numpy as np
 from scipy import stats
 import seaborn as sns
 import matplotlib.pyplot as plt
+from icecream import ic
 # import alphastats
 
 
@@ -41,8 +42,8 @@ def drop_non8h_cols(df):
     return df_filtered
 
 # imputation
-def create_distribution(condition):
-    mu, std = stats.norm.fit(condition.dropna())
+def create_distribution(data):
+    mu, std = stats.norm.fit(data)
     mu = mu - 1.8 * std
     std = 0.25*std
    
@@ -66,7 +67,10 @@ def perform_imputation(df):
     cols = df.columns.values.tolist()[1:]
     imputed_values = pd.DataFrame(columns=df.columns.values.tolist())
     for condition in cols:
-        mu, std = create_distribution(df[condition])
+        data = df[condition].dropna()
+        ic(np.all(np.isfinite(data)))
+        ic(data)
+        mu, std = create_distribution(data)
         
         imputed_values[condition] = df[condition].apply(lambda x: impute(x, mu, std, True))
         df[condition] = df[condition].apply(lambda x: impute(x, mu, std, False))
@@ -104,11 +108,17 @@ nsp_df = drop_non8h_cols(nsp_df)
 total_df = drop_non8h_cols(total_df)
 light_df = drop_non8h_cols(light_df)
 
+# replace = and -inf 
+total_df.replace([np.inf, -np.inf], np.nan, inplace=True)
+nsp_df.replace([np.inf, -np.inf], np.nan, inplace=True)
+light_df.replace([np.inf, -np.inf], np.nan, inplace=True)
+
 # Replace low values with NaN for filtering
 total_df.iloc[:,1:] = total_df.iloc[:,1:].apply(lambda x: np.where(x < 0.001, np.nan, x))
 nsp_df.iloc[:,1:] = nsp_df.iloc[:,1:].apply(lambda x: np.where(x < 0.001, np.nan, x))
 light_df.iloc[:,1:] = light_df.iloc[:,1:].apply(lambda x: np.where(x < 0.001, np.nan, x))
 
+# log2 before filtering and imputation
 total_df.iloc[:,1:] = np.log2(total_df.iloc[:,1:])
 nsp_df.iloc[:,1:] = np.log2(nsp_df.iloc[:,1:])
 light_df.iloc[:,1:] = np.log2(light_df.iloc[:,1:])
@@ -118,16 +128,16 @@ total_df = filter_for_valid_values(total_df)
 nsp_df = filter_for_valid_values(nsp_df)
 light_df = filter_for_valid_values(light_df)
 
-
 # impute with gausian shift
 total_df, total_df_imputed = perform_imputation(total_df)
 nsp_df, nsp_df_imputed = perform_imputation(nsp_df)
 light_df, light_df_imputed = perform_imputation(light_df)
 
-# plot_histogram(total_df, total_df_imputed)
-# plot_histogram(nsp_df, nsp_df_imputed)
-# plot_histogram(light_df, light_df_imputed)
+plot_histogram(total_df, total_df_imputed)
+plot_histogram(nsp_df, nsp_df_imputed)
+plot_histogram(light_df, light_df_imputed)
 
+# base 2 exponentiation before saving
 total_df.iloc[:,1:] = 2**total_df.iloc[:,1:]
 nsp_df.iloc[:,1:] = 2**nsp_df.iloc[:,1:]
 light_df.iloc[:,1:] = 2**light_df.iloc[:,1:]

@@ -19,7 +19,7 @@ def anova_clustermap(df, anova_df, title):
     filtered = merged_df[merged_df['ANOVA_pvalue']<0.00001]
     
     filtered = filtered[['Protein.Group', 'eIF4E+ 8h 1', 'eIF4E+ 8h 2', 'eIF4E- 8h 1', 'eIF4E- 8h 2', 'eIF4G1+ 8h 1', 'eIF4G1+ 8h 2', 'eIF4G1- 8h 1', 'eIF4G1- 8h 2', 'eIF4G2+ 8h 1', 'eIF4G2+ 8h 2', 'eIF4G2- 8h 1', 'eIF4G2- 8h 2', 'eIF4G3+ 8h 1', 'eIF4G3+ 8h 2', 'eIF4G3- 8h 1', 'eIF4G3- 8h 2']]
-    filtered.iloc[:,1:] = filtered.iloc[:,1:].apply(zscore)
+    filtered.iloc[:,1:] = filtered.iloc[:,1:].apply(zscore, axis=1)
     
     filtered = filtered.set_index('Protein.Group')
     
