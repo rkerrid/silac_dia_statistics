@@ -26,6 +26,7 @@ def filter_for_valid_values(df):
     for base in base_columns:
         col1 = f'{base} 1'
         col2 = f'{base} 2'
+        
         # Check if both replicates have non-NaN values
         df['keep_row'] |= df[[col1, col2]].notna().all(axis=1)
     
@@ -104,6 +105,12 @@ nsp_df = pd.read_csv("G:/My Drive/Data/data/eIF4F optimization/protein intensiti
 total_df = pd.read_csv("G:/My Drive/Data/data/eIF4F optimization/protein intensities/total_href.csv", sep=',')
 light_df = pd.read_csv("G:/My Drive/Data/data/eIF4F optimization/protein intensities/light_href.csv", sep=',')
 
+# nsp_df = pd.read_csv("G:/My Drive/Data/data/no spikein data/protein intensities/nsp_dlfq.csv", sep=',')
+# total_df = pd.read_csv("G:/My Drive/Data/data/no spikein data/protein intensities/total_dlfq.csv", sep=',')
+# light_df = pd.read_csv("G:/My Drive/Data/data/no spikein data/protein intensities/light_dlfq.csv", sep=',')
+
+
+
 nsp_df = drop_non8h_cols(nsp_df)
 total_df = drop_non8h_cols(total_df)
 light_df = drop_non8h_cols(light_df)
@@ -145,6 +152,10 @@ light_df.iloc[:,1:] = 2**light_df.iloc[:,1:]
 nsp_df.to_csv("G:/My Drive/Data/data/eIF4F optimization/imputed intensities 8hr/nsp.csv", sep=',')
 light_df.to_csv("G:/My Drive/Data/data/eIF4F optimization/imputed intensities 8hr/light.csv", sep=',')
 total_df.to_csv("G:/My Drive/Data/data/eIF4F optimization/imputed intensities 8hr/total.csv", sep=',')
+
+# nsp_df.to_csv("G:/My Drive/Data/data/no spikein data/protein intensities/nsp.csv", sep=',')
+# light_df.to_csv("G:/My Drive/Data/data/no spikein data/protein intensities/light.csv", sep=',')
+# total_df.to_csv("G:/My Drive/Data/data/no spikein data/protein intensities/total.csv", sep=',')
 
 
 
