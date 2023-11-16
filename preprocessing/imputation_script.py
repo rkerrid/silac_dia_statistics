@@ -167,6 +167,7 @@ def process_intensities(path, subset, quantification='href', plot_imputation=Fal
     light_df.iloc[:,1:] = 2**light_df.iloc[:,1:]
     
     create_directory(f"{path}", "imputed")
+    metadata.to_csv(f"{path}/imputed/meta.csv", sep=',',index=False)
     nsp_df.to_csv(f"{path}imputed/nsp.csv", sep=',',index=False)
     light_df.to_csv(f"{path}imputed/light.csv", sep=',',index=False)
     total_df.to_csv(f"{path}imputed/total.csv", sep=',',index=False)
