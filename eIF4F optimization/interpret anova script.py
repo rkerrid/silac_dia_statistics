@@ -54,7 +54,7 @@ nsp_anova = pd.read_csv(f"{path}nsp_anova.csv", sep=',', index_col=False)
 light_anova = pd.read_csv(f"{path}light_anova.csv", sep=',', index_col=False)
 
 total_merged = merge_data(total_df, total_anova)
-# nsp_merged = merge_data(nsp_df, nsp_anova)
+nsp_merged = merge_data(nsp_df, nsp_anova)
 light_merged = merge_data(light_df, light_anova)
 
 anova_clustermap(total_merged, path, "Total")
