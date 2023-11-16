@@ -15,10 +15,12 @@ import plotly.express as px
 import ipywidgets as widgets
 from IPython.display import display
 import os
-
+from manage_directories import create_directory
 
 global significant_proteins_df
 significant_proteins_df = None
+sig = None
+fc = None
 
 def scan_folder(path):
     # List to hold file names
@@ -38,7 +40,7 @@ def scan_folder(path):
     return file_names
 
 
-def create_volcano_plot(df, title, pois):
+def create_volcano_plot(df, title, pois, path):
     def volcano(significance_level=0.05, fold_change=1.0, show_labels=False):
         df['-log10(p_value)'] = -np.log10(df['pval'])
 
@@ -74,20 +76,51 @@ def create_volcano_plot(df, title, pois):
 
         fig.update_layout(height=600, width=800)
         fig.update_traces(textposition='top center', textfont={'color':'black', 'size':12, 'family':'Arial, sans-serif'})
+        sig = significance_level
+        fc = fold_change
         return fig
 
+    # def generate_significant_proteins_list():
+    #     significant = df['-log10(p_value)'] >= -np.log10(sig_slider.value)
+    #     high_fold_change = np.abs(df['log2fc']) >= fc_slider.value
+    #     significant_proteins = df[significant & high_fold_change]
+
+    #     significant_proteins['upregulated'] = significant_proteins['log2fc'] > 0
+    #     significant_proteins['downregulated'] = significant_proteins['log2fc'] < 0
+
+    #     result_df = significant_proteins[['Protein.Group', 'upregulated', 'downregulated']]
+    #     result_df.columns = ['Proteins', 'Upregulated', 'Downregulated']
+
+    #     return result_df
     def generate_significant_proteins_list():
         significant = df['-log10(p_value)'] >= -np.log10(sig_slider.value)
         high_fold_change = np.abs(df['log2fc']) >= fc_slider.value
         significant_proteins = df[significant & high_fold_change]
-
-        significant_proteins['upregulated'] = significant_proteins['log2fc'] > 0
-        significant_proteins['downregulated'] = significant_proteins['log2fc'] < 0
-
-        result_df = significant_proteins[['Protein.Group', 'upregulated', 'downregulated']]
-        result_df.columns = ['Proteins', 'Upregulated', 'Downregulated']
-
+    
+        # Create a new column for regulation status
+        significant_proteins['Regulation'] = np.where(significant_proteins['log2fc'] > 0, 'Upregulated', 'Downregulated')
+    
+        # Create the result DataFrame with two columns
+        result_df = significant_proteins[['Protein.Group', 'Regulation']]
+        result_df['protein_name'] = result_df['Protein.Group'].apply(lambda x: x.split('-')[1] if '-' in x else x)
+        # result_df.columns = ['Proteins', 'Regulation']
+        
+        # Sort by Regulation
+        result_df = result_df.sort_values(by='Regulation')
+        # Save to CSV
+        create_directory(path, 'metascape_lists')
+        # create_directory(f'{path}metascape_lists', '{title}_l2fc:{fc}_sig:{sig}')
+        result_df.to_csv(f'{path}metascape_lists/{title}.csv', index=False)
+    
         return result_df
+
+# Example usage
+# df = your_dataframe
+# sig_slider_value = value_from_slider
+# fc_slider_value = value_from_slider
+# output_filename = "significant_proteins.csv"
+# generate_significant_proteins_list(df, sig_slider_value, fc_slider_value, output_filename)
+
 
     def update_plot(change):
         with output:
@@ -137,7 +170,7 @@ def loop_and_plot_results(path, result_list, pois):
         df = pd.read_csv(f'{path}/{result}')
         if len(df) > 1000:
             df = reduce_df_size(df, 1000)
-        create_volcano_plot(df, name, pois)
+        create_volcano_plot(df, name, pois, path)
     
     
     
