@@ -13,7 +13,7 @@ from scipy import stats
 
 import matplotlib.pyplot as plt
 from icecream import ic
-
+ic.disable()
 
  # import metadata
 def import_meta(path):
@@ -31,9 +31,10 @@ def replace_values(df):
     df.iloc[:,1:] = df.iloc[:,1:].apply(lambda x: np.where(x < 0.001, np.nan, x))
     return df
  
-def filter_for_valid_values(df, metadata, sample_group):
-     for group in metadata[sample_group].unique():
-         sub_meta = metadata[metadata[sample_group] == group]
+def filter_for_valid_values(df, metadata):
+     df['keep_row'] = False
+     for group in metadata['Treatment'].unique():
+         sub_meta = metadata[metadata['Treatment'] == group]
          cols = sub_meta['Sample'].tolist()
 
          # Check that we have at least 2 columns to compare, if not continue to next group
@@ -76,8 +77,7 @@ def perform_imputation(df):
     imputed_values = pd.DataFrame(columns=df.columns.values.tolist())
     for condition in cols:
         data = df[condition].dropna()
-        ic(np.all(np.isfinite(data)))
-        ic(data)
+        
         mu, std = create_distribution(data)
         
         imputed_values[condition] = df[condition].apply(lambda x: impute(x, mu, std, True))
@@ -85,17 +85,18 @@ def perform_imputation(df):
     
     return  df, imputed_values
 
-def plot_histogram(df, imputed_values):
+def plot_histogram(df, imputed_values, title):
   # Plot histograms for each column in df1 and df2 on the same plot with different colors
     # Create a single figure with 2 rows and 3 columns
   
     # Plot histograms for each column in df and imputed_values
     for  col in df.columns.values.tolist()[1:]:
+        imputed_data = imputed_values[col].dropna()
+        original_data = df[col].dropna()
         
-
-        plt.hist(df[col], bins=20, alpha=0.5, label='original data', color='blue')
-        plt.hist(imputed_values[col], bins=20, alpha=0.5, label='imputed values', color='green')
-        plt.title(col + ' Histogram')
+        plt.hist(original_data, bins=20, alpha=0.5, label='original data', color='blue')
+        plt.hist(imputed_data, bins=20, alpha=0.5, label='imputed values', color='green')
+        plt.title(f'{title} {col} Histogram')
         plt.xlabel('Log2 intensity')
         plt.ylabel('Frequency')
         # plt.legend()
@@ -104,20 +105,44 @@ def plot_histogram(df, imputed_values):
 
         # Display the figure
         plt.show()
+
+def subset_data(df,  metadata):
+    # need to map the cols to keep witht he metadata and drop/save cols that meet re requirements
+    
+    
+   
+    relevant_samples = metadata['Sample'].values.tolist()
  
-def process_intensities(path, metadata_sample_group, quantification='href', plot_imputation=False):
+    columns_to_keep = ['Protein.Group'] + relevant_samples
+
+    df = df[columns_to_keep]
+    
+    return df
+
+def subset_metadata(metadata, subset):
+    filtered_metadata = metadata[metadata['Treatment'].isin(subset)]
+    return filtered_metadata
+
+def process_intensities(path, subset, quantification='href', plot_imputation=False):
     metadata = import_meta(path)
     # groups = metadata[metadata_sample_group].unique()
-    total, light, nsp = get_dataframes(path,quantification)
+    
+    total, light, nsp = get_dataframes(path,'href')
+    
+    metadata = subset_metadata(metadata, subset)
+    total = subset_data(total,metadata)
+    light = subset_data(light, metadata)
+    nsp = subset_data(nsp, metadata)
+    
     # replace NaN and inf values
     total = replace_values(total)
     light = replace_values(light)
     nsp = replace_values(nsp)
     
     # filter for valid values
-    total = filter_for_valid_values(total, metadata, metadata_sample_group)
-    light = filter_for_valid_values(light, metadata, metadata_sample_group)
-    nsp = filter_for_valid_values(nsp, metadata, metadata_sample_group)
+    total = filter_for_valid_values(total, metadata)
+    light = filter_for_valid_values(light, metadata)
+    nsp = filter_for_valid_values(nsp, metadata)
     
     # log transform
     total.iloc[:,1:] = np.log2(total.iloc[:,1:])
@@ -129,25 +154,21 @@ def process_intensities(path, metadata_sample_group, quantification='href', plot
     total_df, total_df_imputed = perform_imputation(total)
     nsp_df, nsp_df_imputed = perform_imputation(nsp)
     light_df, light_df_imputed = perform_imputation(light)
+    ic(total_df)
+    ic(total_df_imputed)
     
     if plot_imputation:
-        plot_histogram(total_df, total_df_imputed)
-        plot_histogram(nsp_df, nsp_df_imputed)
-        plot_histogram(light_df, light_df_imputed)
+        plot_histogram(total_df, total_df_imputed, 'Total')
+        plot_histogram(nsp_df, nsp_df_imputed, "NSP")
+        plot_histogram(light_df, light_df_imputed, "Light")
         # base 2 exponentiation before saving
     total_df.iloc[:,1:] = 2**total_df.iloc[:,1:]
     nsp_df.iloc[:,1:] = 2**nsp_df.iloc[:,1:]
     light_df.iloc[:,1:] = 2**light_df.iloc[:,1:]
     
     create_directory(f"{path}", "imputed")
-    nsp_df.to_csv(f"{path}/imputed/nsp.csv", sep=',')
-    light_df.to_csv(f"{path}imputed/light.csv", sep=',')
-    total_df.to_csv(f"{path}imputed/total.csv", sep=',')
-    
-# import meta and dataframes
-path = 'G:/My Drive/Data/data/eIF4F pilot/'
-metadata_sample_group = 'Treatment'
- 
- 
-process_intensities(path, metadata_sample_group)
- 
+    nsp_df.to_csv(f"{path}imputed/nsp.csv", sep=',',index=False)
+    light_df.to_csv(f"{path}imputed/light.csv", sep=',',index=False)
+    total_df.to_csv(f"{path}imputed/total.csv", sep=',',index=False)
+
+
