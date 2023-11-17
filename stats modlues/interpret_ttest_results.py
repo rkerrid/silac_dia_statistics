@@ -84,18 +84,7 @@ def create_volcano_plot(df, title, pois, uniprot, path):
         fc = fold_change
         return fig
 
-    # def generate_significant_proteins_list():
-    #     significant = df['-log10(p_value)'] >= -np.log10(sig_slider.value)
-    #     high_fold_change = np.abs(df['log2fc']) >= fc_slider.value
-    #     significant_proteins = df[significant & high_fold_change]
-
-    #     significant_proteins['upregulated'] = significant_proteins['log2fc'] > 0
-    #     significant_proteins['downregulated'] = significant_proteins['log2fc'] < 0
-
-    #     result_df = significant_proteins[['Protein.Group', 'upregulated', 'downregulated']]
-    #     result_df.columns = ['Proteins', 'Upregulated', 'Downregulated']
-
-    #     return result_df
+ 
     def generate_significant_proteins_list():
         significant = df['-log10(p_value)'] >= -np.log10(sig_slider.value)
         high_fold_change = np.abs(df['log2fc']) >= fc_slider.value
@@ -117,13 +106,20 @@ def create_volcano_plot(df, title, pois, uniprot, path):
         result_df.to_csv(f'{path}metascape_lists/{title}.csv', index=False)
     
         return result_df
+    
+    def generate_pois_list():
+        global significant_proteins_df
+        if significant_proteins_df is not None:
+            pois_within_cutoffs = significant_proteins_df[significant_proteins_df['protein_name'].isin(pois)]
+            create_directory(path, 'pois_list')
+            pois_filename = f'{title}_pois.csv'  # Construct the filename for POIs
+            pois_filepath = os.path.join(path, 'pois_list', pois_filename)  # Construct the file path
+            pois_within_cutoffs.to_csv(pois_filepath, index=False)  # Save to CSV
+            with output_df_pois:
+                output_df_pois.clear_output(wait=True)
+                display(pois_within_cutoffs)
+                print(f"POIs list saved to: {pois_filepath}")  # Confirmation message
 
-# Example usage
-# df = your_dataframe
-# sig_slider_value = value_from_slider
-# fc_slider_value = value_from_slider
-# output_filename = "significant_proteins.csv"
-# generate_significant_proteins_list(df, sig_slider_value, fc_slider_value, output_filename)
 
 
     def update_plot(change):
@@ -137,6 +133,14 @@ def create_volcano_plot(df, title, pois, uniprot, path):
         with output_df:
             output_df.clear_output(wait=True)
             display(significant_proteins_df)
+            
+    # def generate_pois_list():
+    #     global significant_proteins_df
+    #     if significant_proteins_df is not None:
+    #         pois_within_cutoffs = significant_proteins_df[significant_proteins_df['protein_name'].isin(pois)]
+    #         with output_df_pois:
+    #             output_df_pois.clear_output(wait=True)
+    #             display(pois_within_cutoffs)
 
     # Sliders and Buttons
     sig_slider = widgets.FloatSlider(value=0.05, min=0.001, max=0.1, step=0.01, description='Significance Level:', continuous_update=False)
@@ -153,13 +157,23 @@ def create_volcano_plot(df, title, pois, uniprot, path):
     # Output Widgets
     output = widgets.Output()
     output_df = widgets.Output()
+    
+    # Additional button for generating POIs list
+    pois_button = widgets.Button(description="Generate POIs List")
+
+    # Handlers
+    pois_button.on_click(lambda b: generate_pois_list())
+
+    # Output Widgets
+    output_df_pois = widgets.Output()
 
     # Display Widgets
     with output:
         display(volcano(sig_slider.value, fc_slider.value, label_button.value))
 
-    control_widgets = widgets.VBox([sig_slider, fc_slider, label_button, generate_button])
-    display(control_widgets, output, output_df)
+    control_widgets = widgets.VBox([sig_slider, fc_slider, label_button, generate_button, pois_button])
+    display(control_widgets, output, output_df, output_df_pois)
+
 
 
 def reduce_df_size(df, top_n):
