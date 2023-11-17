@@ -40,7 +40,7 @@ def scan_folder(path):
     return file_names
 
 
-def create_volcano_plot(df, title, pois, path):
+def create_volcano_plot(df, title, pois, uniprot, path):
     def volcano(significance_level=0.05, fold_change=1.0, show_labels=False):
         df['-log10(p_value)'] = -np.log10(df['pval'])
 
@@ -52,14 +52,18 @@ def create_volcano_plot(df, title, pois, path):
         df.loc[df['is_significant'], 'color'] = 'red'
         
         df['protein_name'] = df['Protein.Group'].apply(lambda x: x.split('-')[1] if '-' in x else x)
-
+        df['uniprot'] = df['Protein.Group'].apply(lambda x: x.split('-')[0] if '-' in x else x)
 
         if show_labels:
             df['labels'] = np.where(df['is_significant'], df['protein_name'], None)
         else:
             df['labels'] = None
         if len(pois) >0:
-            df['labels'] = np.where(df['protein_name'].isin(pois), df['protein_name'], None)
+            if uniprot:
+                df['labels'] = np.where(df['uniprot'].isin(pois), df['protein_name'], None)
+                
+            else:
+                df['labels'] = np.where(df['protein_name'].isin(pois), df['protein_name'], None)
             
         fig = px.scatter(df, x='log2fc', y='-log10(p_value)', hover_name='protein_name', color='color',
                          title=title,
@@ -164,13 +168,13 @@ def reduce_df_size(df, top_n):
     filtered_df = df.sort_values(by='pval', ascending=True).head(top_n)
     return filtered_df
 
-def loop_and_plot_results(path, result_list, pois):
+def loop_and_plot_results(path, result_list, pois, uniprot=False):
     for result in result_list:
         name = result[:-4]
         df = pd.read_csv(f'{path}/{result}')
         if len(df) > 1000:
             df = reduce_df_size(df, 1000)
-        create_volcano_plot(df, name, pois, path)
+        create_volcano_plot(df, name, pois, uniprot, path)
     
     
     
