@@ -176,6 +176,51 @@ def create_volcano_plot(df, title, pois, uniprot, path):
 
 
 
+def simple_volcano_plot(df, title, protein_list, uniprot, significance_level=0.05, fold_change=1):
+    # Calculate -log10(p_value)
+    df['-log10(p_value)'] = -np.log10(df['pval'])
+
+    # Determine significant proteins based on cutoffs
+    significant = df['-log10(p_value)'] >= -np.log10(significance_level)
+    high_fold_change = np.abs(df['log2fc']) >= fold_change
+    df['is_significant'] = significant & high_fold_change
+
+    # Split the dataframe into significant and non-significant for plotting
+    df_sig = df[df['is_significant']]
+    df_non_sig = df[~df['is_significant']]
+
+    # Plotting
+    plt.figure(figsize=(10, 6))
+    sns.scatterplot(data=df_non_sig, x='log2fc', y='-log10(p_value)', color='grey', alpha=0.5)
+    sns.scatterplot(data=df_sig, x='log2fc', y='-log10(p_value)', color='red', alpha=0.5)
+    
+    df['protein_name'] = df['Protein.Group'].apply(lambda x: x.split('-')[1] if '-' in x else x)
+    df['uniprot'] = df['Protein.Group'].apply(lambda x: x.split('-')[0] if '-' in x else x)
+
+    # Adding labels for proteins in the protein list
+    for protein in protein_list:
+        if uniprot:
+            protein_data = df[df['uniprot'] == protein]
+        else:
+            protein_data = df[df['protein_name'] == protein]
+
+        for _, row in protein_data.iterrows():
+            plt.text(row['log2fc'], row['-log10(p_value)'], row['protein_name'], fontsize=9, color='black')
+
+    # Adding horizontal line for significance level
+    plt.axhline(y=-np.log10(significance_level), color='blue', linestyle='--')
+
+    # Adding vertical lines for fold change
+    plt.axvline(x=fold_change, color='green', linestyle='--')
+    plt.axvline(x=-fold_change, color='green', linestyle='--')
+
+    plt.title(title)
+    plt.xlabel('Log2 Fold Change')
+    plt.ylabel('-Log10(p-value)')
+
+    plt.show()
+
+
 def reduce_df_size(df, top_n):
     
     # Sort the DataFrame by the p-value column in ascending order and select the top x rows
@@ -187,8 +232,10 @@ def loop_and_plot_results(path, result_list, pois, uniprot=False):
         name = result[:-4]
         df = pd.read_csv(f'{path}/{result}')
         if len(df) > 1000:
-            df = reduce_df_size(df, 1000)
-        create_volcano_plot(df, name, pois, uniprot, path)
+            # df = reduce_df_size(df, 1000)
+            simple_volcano_plot(df, name, pois, uniprot)
+        else:
+            create_volcano_plot(df, name, pois, uniprot, path)
     
     
     

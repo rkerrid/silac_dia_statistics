@@ -9,6 +9,8 @@ import configparser
 import requests
 from icecream import ic
 import ast
+import pandas as pd
+
 
 def get_key():
     config = configparser.ConfigParser()
@@ -57,25 +59,13 @@ def get_response(question):
     except Exception as e:
         print(f"An error occurred: {e}")
         
-    # response = requests.post(openai_url, json=data, headers=headers)
-    # if response.status_code == 200:
-    #     response_data = response.json()
-    #     if "choices" in response_data and len(response_data["choices"]) > 0:
-    #         if "message" in response_data["choices"][0]:
-    #             response_list = response_data["choices"][0]["message"]["content"]
-    #             response_list = ast.literal_eval(response_list)
-    #             return response_list
-    #         else:
-    #             print("No 'message' key in the response.")
-    #     else:
-    #         print("No 'choices' in the response or 'choices' array is empty.")
-    # else:
-    #     print("Error:", response.status_code, response.text)
-
-def get_list(question):
-    proteins = get_response(question)
-    return proteins
         
 question = "Give me a list of FBXO Family (F-box only proteins)"
 
 proteins = get_response(question)
+
+
+def describe_pois():
+    path = 'G:/My Drive/Data/data/eIF4F pilot/imputed/ttest results/pois_list/'
+    df = pd.read_csv(f'{path}e_nsp_pois.csv', sep=',')
+    
