@@ -69,7 +69,7 @@ def create_volcano_plot(df, title, pois, uniprot, path):
                          title=title,
                          labels={'log2fc': 'Log2 Fold Change', '-log10(p_value)': '-log10(p-value)'},
                          color_discrete_map={'red': 'red', 'blue': 'blue'},
-                         text='labels')
+                         text='labels', opacity=0.5)
 
         significant_threshold = -np.log10(significance_level)
         fig.add_hline(y=significant_threshold, line_dash="dash", line_color="red")

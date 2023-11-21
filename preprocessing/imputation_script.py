@@ -32,7 +32,7 @@ def replace_values(df):
  
 def filter_for_valid_values(df, metadata): # problem with this function or method, work around for loss of proteins that are in the dataframe is setting to true, need to fix this
      df['keep_row'] = False
-     df['keep_row'] = df['Protein.Group'] == 'P06730-EIF4E'
+     # df['keep_row'] = df['Protein.Group'] == 'P06730-EIF4E'
      # df['keep_row'] = df['Protein.Group'] == 'Q04637-EIF4G1'
      # df['keep_row'] = df['Protein.Group'] == 'P78344-EIF4G2'
      for group in metadata['Treatment'].unique():
@@ -48,7 +48,7 @@ def filter_for_valid_values(df, metadata): # problem with this function or metho
 
          # Update 'keep_row' to True where at least 2 of the columns are not NaN
          df.loc[valid_sum >= 2, 'keep_row'] = True
-         df = df[df['keep_row']]
+     df = df[df['keep_row']]
      df.drop('keep_row', axis=1, inplace=True)
      return df     
  
