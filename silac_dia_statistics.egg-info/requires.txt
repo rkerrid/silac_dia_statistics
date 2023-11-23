@@ -1,0 +1,10 @@
+pandas>=1.0.0
+matplotlib>=3.0.0
+numpy>=1.18.0
+jupyterlab>=3.0.0
+spyder
+icecream
+seaborn
+fpdf
+tqdm
+alphastats@ git+https://github.com/MannLabs/alphapeptstats.git

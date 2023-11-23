@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 
+
 def load_and_prepare_data(file_path):
     """Load data from a CSV file and prepare it for analysis."""
     try:
@@ -59,38 +60,40 @@ def save_to_csv(df, file_path):
     except Exception as e:
         print(f"Error saving file: {e}")
 
-# Directories and file paths
-base_dir = 'G:/My Drive/Data/data/eIF4F pilot/imputed'
-file_path_light = os.path.join(base_dir, 'light.csv')
-file_path_nsp = os.path.join(base_dir, 'nsp.csv')
-save_dir = os.path.join(base_dir, 'normalized')
 
-# Load and process the first dataset
-data_light = load_and_prepare_data(file_path_light)
-if data_light is not None:
-    log2_data_light = plot_log2_distributions(data_light, 'Log2 Distributions of Protein Expression Across Light Samples')
-    medians_light = log2_data_light.median()
-    normalized_light = normalize_and_convert(log2_data_light, medians_light)
-    plot_normalized_distributions(normalized_light, 'Normalized Distributions of Protein Expression Across Light Samples')
-
-# Load and process the second dataset
-data_nsp = load_and_prepare_data(file_path_nsp)
-if data_nsp is not None:
-    log2_data_nsp = plot_log2_distributions(data_nsp, 'Log2 Distributions of Protein Expression Across NSP Samples')
-    normalized_nsp = normalize_and_convert(log2_data_nsp, medians_light)
-    plot_normalized_distributions(normalized_nsp, 'Normalized Distributions of Protein Expression Across NSP Samples')
-
-# Combine the normalized data from both datasets
-total_normalized = normalized_light.add(normalized_nsp, fill_value=0)
-
-# Saving the DataFrames to CSV files
-if not os.path.exists(save_dir):
-    os.makedirs(save_dir)
-
-save_to_csv(normalized_light, os.path.join(save_dir, 'light.csv'))
-save_to_csv(normalized_nsp, os.path.join(save_dir, 'nsp.csv'))
-save_to_csv(total_normalized, os.path.join(save_dir, 'total.csv'))
-
+def normalize_samples(path):
+    # Directories and file paths
+    base_dir = f'{path}imputed'
+    file_path_light = os.path.join(base_dir, 'light.csv')
+    file_path_nsp = os.path.join(base_dir, 'nsp.csv')
+    save_dir = os.path.join(base_dir, 'normalized')
+    
+    # Load and process the first dataset
+    data_light = load_and_prepare_data(file_path_light)
+    if data_light is not None:
+        log2_data_light = plot_log2_distributions(data_light, 'Log2 Distributions of Protein Expression Across Light Samples')
+        medians_light = log2_data_light.median()
+        normalized_light = normalize_and_convert(log2_data_light, medians_light)
+        plot_normalized_distributions(normalized_light, 'Normalized Distributions of Protein Expression Across Light Samples')
+    
+    # Load and process the second dataset
+    data_nsp = load_and_prepare_data(file_path_nsp)
+    if data_nsp is not None:
+        log2_data_nsp = plot_log2_distributions(data_nsp, 'Log2 Distributions of Protein Expression Across NSP Samples')
+        normalized_nsp = normalize_and_convert(log2_data_nsp, medians_light)
+        plot_normalized_distributions(normalized_nsp, 'Normalized Distributions of Protein Expression Across NSP Samples')
+    
+    # Combine the normalized data from both datasets
+    total_normalized = normalized_light.add(normalized_nsp, fill_value=0)
+    
+    # Saving the DataFrames to CSV files
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+    
+    save_to_csv(normalized_light, os.path.join(save_dir, 'light.csv'))
+    save_to_csv(normalized_nsp, os.path.join(save_dir, 'nsp.csv'))
+    save_to_csv(total_normalized, os.path.join(save_dir, 'total.csv'))
+    
 
 
 

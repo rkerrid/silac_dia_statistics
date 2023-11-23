@@ -6,15 +6,17 @@ Created on Thu Nov 16 04:54:36 2023
 """
 
 
-from manage_directories import create_directory
+from sdia_stats.utils.manage_directories import create_directory
 import pandas as pd
 import numpy as np
 from scipy import stats
 
 import matplotlib.pyplot as plt
-from icecream import ic
-ic.enable()
+# from icecream import ic
+
  # import metadata
+ 
+ 
 def import_meta(path):
      metadata = pd.read_csv(f"{path}meta.csv")
      return metadata
@@ -32,13 +34,10 @@ def replace_values(df):
  
 def filter_for_valid_values(df, metadata): # problem with this function or method, work around for loss of proteins that are in the dataframe is setting to true, need to fix this
      df['keep_row'] = False
-     # df['keep_row'] = df['Protein.Group'] == 'P06730-EIF4E'
-     # df['keep_row'] = df['Protein.Group'] == 'Q04637-EIF4G1'
-     # df['keep_row'] = df['Protein.Group'] == 'P78344-EIF4G2'
+
      for group in metadata['Treatment'].unique():
          sub_meta = metadata[metadata['Treatment'] == group]
          cols = sub_meta['Sample'].tolist()
-         ic(cols)
          # Check that we have at least 2 columns to compare, if not continue to next group
          if len(cols) < 2:
              continue
@@ -126,32 +125,29 @@ def subset_metadata(metadata, subset):
     return filtered_metadata
 
 def process_intensities(path, subset, quantification='href', plot_imputation=False):
+    
     metadata = import_meta(path)
     # groups = metadata[metadata_sample_group].unique()
     
     total, light, nsp = get_dataframes(path,'href')
-    print('imported')
-    print(total[total['Protein.Group']=='P06730-EIF4E'])
+  
     metadata = subset_metadata(metadata, subset)
     total = subset_data(total,metadata)
     light = subset_data(light, metadata)
     nsp = subset_data(nsp, metadata)
-    print('subseted')
-    print(total[total['Protein.Group']=='P06730-EIF4E'])
+  
     # replace NaN and inf values
     total = replace_values(total)
     light = replace_values(light)
     nsp = replace_values(nsp)
-    print('replace')
-    print(total[total['Protein.Group']=='P06730-EIF4E'])
+  
     
     # filter for valid values
     total = filter_for_valid_values(total, metadata)
     light = filter_for_valid_values(light, metadata)
     nsp = filter_for_valid_values(nsp, metadata)
     
-    print('valid values')
-    print(total[total['Protein.Group']=='P06730-EIF4E'])
+
     # log transform
     total.iloc[:,1:] = np.log2(total.iloc[:,1:])
     light.iloc[:,1:] = np.log2(light.iloc[:,1:])
@@ -180,6 +176,6 @@ def process_intensities(path, subset, quantification='href', plot_imputation=Fal
     total_df.to_csv(f"{path}imputed/total.csv", sep=',',index=False)
 
 
-path = 'G:/My Drive/Data/data/eIF4F pilot/'
-subset = ['e+8h','e-8h', 'g1-8h', 'g1+8h','g2-8h', 'g2+8h','g3-8h', 'g3+8h']
-process_intensities(path, subset, quantification='href', plot_imputation=True)
+# path = 'G:/My Drive/Data/data/eIF4F pilot/'
+# subset = ['e+8h','e-8h', 'g1-8h', 'g1+8h','g2-8h', 'g2+8h','g3-8h', 'g3+8h']
+# process_intensities(path, subset, quantification='href', plot_imputation=True)
