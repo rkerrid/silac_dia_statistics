@@ -124,14 +124,14 @@ def subset_metadata(metadata, subset):
     filtered_metadata = metadata[metadata['Treatment'].isin(subset)]
     return filtered_metadata
 
-def process_intensities(path, subset, quantification='href', plot_imputation=False):
+def process_intensities(path, subset=[], quantification='href', plot_imputation=False):
     
     metadata = import_meta(path)
     # groups = metadata[metadata_sample_group].unique()
     
-    total, light, nsp = get_dataframes(path,'href')
-  
-    metadata = subset_metadata(metadata, subset)
+    total, light, nsp = get_dataframes(path,quantification)
+    if len(subset) > 0:
+        metadata = subset_metadata(metadata, subset)
     total = subset_data(total,metadata)
     light = subset_data(light, metadata)
     nsp = subset_data(nsp, metadata)
