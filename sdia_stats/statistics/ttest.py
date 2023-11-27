@@ -10,19 +10,22 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import pandas as pd
 from sdia_stats.utils.manage_directories import create_directory
+from icecream import ic
 
 
 def generate_alphastats_objects(path, meta):
+    meta_file = pd.read_csv(meta, sep=',')
+    intensity_cols = meta_file['Sample'].values.tolist()
     loader_total = alphastats.GenericLoader(f"{path}total.csv", 
-                                      intensity_column = '[Sample]',
+                                      intensity_column = intensity_cols,
                                         index_column="Protein.Group")
 
     loader_nsp = alphastats.GenericLoader(f"{path}nsp.csv", 
-                                      intensity_column = '[Sample]',
+                                      intensity_column = intensity_cols,
                                         index_column="Protein.Group")
 
     loader_light = alphastats.GenericLoader(f"{path}light.csv", 
-                                      intensity_column = '[Sample]',
+                                      intensity_column = intensity_cols,
                                         index_column="Protein.Group")
 
     df_total = alphastats.DataSet(
@@ -68,7 +71,16 @@ def ttest(path, meta, groups):
         result_nsp = nsp.diff_expression_analysis(column='Treatment', group1=group1, group2=group2)
         save_results(path, result_nsp, f'{comparison_name}_nsp.csv')
     
-
+if __name__ =='__main__':
+    path = 'G:/My Drive/Data/data/poc1 statstest/H/imputed/'
+    # path = 'G:/My Drive/Data/data/eIF4F pilot/imputed/'
+    meta = f'{path}meta.csv'
+    groups = {'FAC': ('FAC', 'control'),
+              'both': ('both', 'control'),
+              'gu': ('gu', 'control')}
+    # intensity_cols = ['control_1', 'control_2', 'control_3', 'FAC_1', 'FAC_2', 'FAC_3','gu_1', 'gu_2', 'gu_3']
+    ttest(path, meta, groups)
+  
 
 # def ttest(path, meta, groups):
 #     nsp, light, total = generate_alphastats_objects(path, meta)
