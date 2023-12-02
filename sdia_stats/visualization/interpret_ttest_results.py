@@ -227,15 +227,18 @@ def reduce_df_size(df, top_n):
     filtered_df = df.sort_values(by='pval', ascending=True).head(top_n)
     return filtered_df
 
-def loop_and_plot_results(path, pois, uniprot=False):
+def loop_and_plot_results(path, pois, interactive=False, uniprot=False):
     result_list = scan_folder(path)
     print(result_list)
     for result in result_list:
         name = result[:-4]
         df = pd.read_csv(f'{path}/{result}')
         if len(df) > 1000:
-            # df = reduce_df_size(df, 1000)
-            simple_volcano_plot(df, name, pois, uniprot)
+            if interactive:
+                df = reduce_df_size(df, 1000)
+                create_volcano_plot(df, name, pois, uniprot, path)
+            else:
+                simple_volcano_plot(df, name, pois, uniprot)
         else:
             create_volcano_plot(df, name, pois, uniprot, path)
     
