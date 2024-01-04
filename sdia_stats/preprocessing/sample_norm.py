@@ -42,22 +42,12 @@ def normalize(log2_data, medians):
     
     return normalized_data
 
-# def plot_normalized_distributions(data, title):
-#     """Plot distributions of the normalized data."""
-#     data=np.log2(data)
-#     plt.figure(figsize=(20, 10))
-#     sns.boxplot(data=data)
-#     plt.xticks(rotation=90)
-#     plt.ylabel('Normalized Expression')
-#     plt.title(title)
-#     plt.tight_layout()
-#     plt.show()
 
 def plot_normalized_distributions(data, title):
     """Plot distributions of the normalized data."""
     log2_data = np.log2(data)
     plt.figure(figsize=(20, 10))
-    sns.boxplot(data=data)
+    sns.boxplot(data=log2_data)
     plt.xticks(rotation=90)
     plt.ylabel('Normalized Expression')
     plt.title(title)
@@ -84,39 +74,30 @@ def normalize_samples(path):
     # Load and process the first dataset
     data_light = load_and_prepare_data(file_path_light)
     if data_light is not None:
-        # ic(data_light)
         log2_data_light = plot_log2_distributions(data_light, 'Log2 Distributions of Protein Expression Across Light Samples')
         medians_light = log2_data_light.median()
         normalized_light = normalize(log2_data_light, medians_light)
-        # ic(normalized_light)
+        
         normalized_light = np.power(2, normalized_light) # Inverse log2 transformation
         plot_normalized_distributions(normalized_light, 'Normalized Distributions of Protein Expression Across Light Samples')
     
     # Load and process the second dataset
     data_nsp = load_and_prepare_data(file_path_nsp)
     if data_nsp is not None:
-        ic(data_nsp)
         log2_data_nsp = plot_log2_distributions(data_nsp, 'Log2 Distributions of Protein Expression Across NSP Samples')
-        ic(log2_data_nsp)
         normalized_nsp_log2 = normalize(log2_data_nsp, medians_light)
-        ic(normalized_nsp_log2)
         normalized_nsp = np.power(2, normalized_nsp_log2) # Inverse log2 transformation
-        ic(normalized_nsp)
         plot_normalized_distributions(normalized_nsp, 'Normalized Distributions of Protein Expression Across NSP Samples')
     
-    # Combine the normalized data from both datasets
-    total_normalized = normalized_light.add(normalized_nsp, fill_value=0)
     
     # Saving the DataFrames to CSV files
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     
-    ic(normalized_light)
-    ic(normalized_nsp)
-    ic(total_normalized)
+    
     save_to_csv(normalized_light, os.path.join(save_dir, 'light.csv'))
     save_to_csv(normalized_nsp, os.path.join(save_dir, 'nsp.csv'))
-    save_to_csv(total_normalized, os.path.join(save_dir, 'total.csv'))
+    
     
 
 

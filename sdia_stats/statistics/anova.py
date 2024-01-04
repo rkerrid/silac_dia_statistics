@@ -8,6 +8,7 @@ Created on Thu Dec 28 08:23:54 2023
 import alphastats 
 import pandas as pd
 import matplotlib.pyplot as plt
+from sdia_stats.utils.manage_directories import create_directory
 
 # path = "G:/My Drive/Data/data/spikein data/"
 # meta = f"{path}meta.xlsx"
@@ -57,6 +58,9 @@ def preform_anova(path, group, subset_cols):
     light_anova  = df_light.anova(column = group)
 
     # total_anova.to_csv(f'{path}total_anova.csv',sep=',')
-    light_anova.to_csv(f'{path}light_anova.csv',sep=',')
-    nsp_anova.to_csv(f'{path}nsp_anova.csv',sep=',')
+    
+    create_directory(f'{path}', 'anova_results')
+    
+    light_anova.to_csv(f'{path}/anova_results/light_anova.csv',sep=',')
+    nsp_anova.to_csv(f'{path}/anova_results/nsp_anova.csv',sep=',')
 # preform_anova(path, meta, group)

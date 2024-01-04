@@ -47,7 +47,7 @@ def filter_for_valid_values(df, metadata): # problem with this function or metho
 
          # Update 'keep_row' to True where at least 2 of the columns are not NaN
          df.loc[valid_sum >= 2, 'keep_row'] = True
-     df = df[df['keep_row']]
+     df = df[df['keep_row']].copy()
      df.drop('keep_row', axis=1, inplace=True)
      return df     
  
