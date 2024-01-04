@@ -66,6 +66,7 @@ def save_to_csv(df, file_path):
 
 def normalize_samples(path):
     # Directories and file paths
+    meta = pd.read_csv(f'{path}meta.csv')
     base_dir = f'{path}imputed'
     file_path_light = os.path.join(base_dir, 'light.csv')
     file_path_nsp = os.path.join(base_dir, 'nsp.csv')
@@ -97,6 +98,7 @@ def normalize_samples(path):
     
     save_to_csv(normalized_light, os.path.join(save_dir, 'light.csv'))
     save_to_csv(normalized_nsp, os.path.join(save_dir, 'nsp.csv'))
+    save_to_csv(meta, os.path.join(save_dir, 'meta.csv'))
     
     
 

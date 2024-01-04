@@ -16,9 +16,9 @@ from icecream import ic
 def generate_alphastats_objects(path, meta):
     meta_file = pd.read_csv(meta, sep=',')
     intensity_cols = meta_file['Sample'].values.tolist()
-    loader_total = alphastats.GenericLoader(f"{path}total.csv", 
-                                      intensity_column = intensity_cols,
-                                        index_column="Protein.Group")
+    # loader_total = alphastats.GenericLoader(f"{path}total.csv", 
+    #                                   intensity_column = intensity_cols,
+    #                                     index_column="Protein.Group")
 
     loader_nsp = alphastats.GenericLoader(f"{path}nsp.csv", 
                                       intensity_column = intensity_cols,
@@ -28,10 +28,10 @@ def generate_alphastats_objects(path, meta):
                                       intensity_column = intensity_cols,
                                         index_column="Protein.Group")
 
-    df_total = alphastats.DataSet(
-        loader = loader_total,
-        metadata_path = meta,
-        sample_column = 'Sample')
+    # df_total = alphastats.DataSet(
+    #     loader = loader_total,
+    #     metadata_path = meta,
+    #     sample_column = 'Sample')
 
     df_light = alphastats.DataSet(
         loader = loader_light,
@@ -45,23 +45,23 @@ def generate_alphastats_objects(path, meta):
 
     # preprocess data, log2 transform
     df_nsp.preprocess(subset=True)
-    df_total.preprocess(subset=True)
+    # df_total.preprocess(subset=True)
     df_light.preprocess(subset=True)
     
-    return df_nsp, df_light, df_total
+    return df_nsp, df_light # df_total
 
 def save_results(path, ttest, file_name):
     create_directory(f'{path}', 'ttest results')
     ttest.to_csv(f"{path}/ttest results/{file_name}",sep=',',index=False)
 
 def ttest(path, meta, groups):
-    nsp, light, total = generate_alphastats_objects(path, meta)
+    nsp, light = generate_alphastats_objects(path, meta)
 
     # Iterate over the dictionary of groups
     for comparison_name, (group1, group2) in groups.items():
         # ttest for total
-        result_total = total.diff_expression_analysis(column='Treatment', group1=group1, group2=group2)
-        save_results(path, result_total, f'{comparison_name}_total.csv')
+        # result_total = total.diff_expression_analysis(column='Treatment', group1=group1, group2=group2)
+        # save_results(path, result_total, f'{comparison_name}_total.csv')
         
         # ttest for light
         result_light = light.diff_expression_analysis(column='Treatment', group1=group1, group2=group2)
