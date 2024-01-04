@@ -49,7 +49,6 @@ def merge_data(df, anova):
 def plot_clustermap(path, samples):
     light_df = pd.read_csv(f'{path}light.csv',sep=',', index_col=False)
     nsp_df = pd.read_csv(f'{path}nsp.csv',sep=',', index_col=False)
-    ic(light_df)
     nsp_anova = pd.read_csv(f"{path}nsp_anova.csv", sep=',', index_col=False)
     light_anova = pd.read_csv(f"{path}light_anova.csv", sep=',', index_col=False)
     
