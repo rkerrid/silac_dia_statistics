@@ -19,7 +19,7 @@ def anova_clustermap(df, path, samples, title):
     cols = ['Protein.Group']+samples
     ic(cols)
     filtered = filtered[cols]
-    print('HEREEEEEEEEEEEEEE')
+    
     ic(filtered)
     filtered.iloc[:,1:] = filtered.iloc[:,1:].apply(zscore, axis=1)
     
@@ -60,30 +60,13 @@ def plot_clustermap(path, samples):
     anova_clustermap(nsp_merged, path, samples, "nsp")
     anova_clustermap(light_merged, path, samples, "light")
 
+if __name__ =='__main__':
+    path = 'G:/My Drive/Data/data/poc4/H/imputed/normalized/'
+    path = 'G:/My Drive/Data/data/poc4/H/imputed/normalized/for_anova/'
+    path = 'G:/My Drive/Data/data/eif4g optimization/imputed/normalized/for_anova/'
+    
+    samples = ['control_I', 'control_II', 'control_III', 'DFO_I','DFO_II','DFO_III']
+    samples = ['08a_1','08a_2','08a_3','18a_1','18a_2','18a_3','28a_1','28a_2','28a_3']
+    
+    plot_clustermap(path, samples)
 
-path = 'G:/My Drive/Data/data/poc4/H/imputed/normalized/'
-path = 'G:/My Drive/Data/data/poc4/H/imputed/normalized/for_anova/'
-path = 'G:/My Drive/Data/data/eif4g optimization/imputed/normalized/for_anova/'
-
-samples = ['control_I', 'control_II', 'control_III', 'DFO_I','DFO_II','DFO_III']
-samples = ['08a_1','08a_2','08a_3','18a_1','18a_2','18a_3','28a_1','28a_2','28a_3']
-
-plot_clustermap(path, samples)
-
-# path = "G:/My Drive/Data/data/spikein data/"
-
-# total_df = pd.read_csv(f'{path}total_imputed.csv',sep=',', index_col=False)
-# light_df = pd.read_csv(f'{path}light_imputed.csv',sep=',', index_col=False)
-# nsp_df = pd.read_csv(f'{path}nsp_imputed.csv',sep=',', index_col=False)
-
-# total_anova = pd.read_csv(f"{path}total_anova.csv", sep=',', index_col=False)
-# nsp_anova = pd.read_csv(f"{path}nsp_anova.csv", sep=',', index_col=False)
-# light_anova = pd.read_csv(f"{path}light_anova.csv", sep=',', index_col=False)
-
-# total_merged = merge_data(total_df, total_anova)
-# nsp_merged = merge_data(nsp_df, nsp_anova)
-# light_merged = merge_data(light_df, light_anova)
-
-# anova_clustermap(total_merged, path, "Total")
-# anova_clustermap(nsp_merged, path, "nsp")
-# anova_clustermap(light_merged, path, "light")
