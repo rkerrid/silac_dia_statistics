@@ -6,17 +6,27 @@ Created on Thu Nov 16 04:54:36 2023
 """
 
 
+
 from sdia_stats.utils.manage_directories import create_directory
+
+from utils import manage_directories
+
 import pandas as pd
 import numpy as np
 from scipy import stats
 
 import matplotlib.pyplot as plt
+
 # from icecream import ic
 
  # import metadata
  
+
+from icecream import ic
+ic.enable()
+ # import metadata
  
+
 def import_meta(path):
      metadata = pd.read_csv(f"{path}meta.csv")
      return metadata
@@ -32,12 +42,20 @@ def replace_values(df):
     df.iloc[:,1:] = df.iloc[:,1:].apply(lambda x: np.where(x < 0.001, np.nan, x))
     return df
  
+
 def filter_for_valid_values(df, metadata): # problem with this function or method, work around for loss of proteins that are in the dataframe is setting to true, need to fix this
      df['keep_row'] = False
 
      for group in metadata['Treatment'].unique():
          sub_meta = metadata[metadata['Treatment'] == group]
          cols = sub_meta['Sample'].tolist()
+def filter_for_valid_values(df, metadata): 
+     df['keep_row'] = False
+   
+     for group in metadata['Treatment'].unique():
+         sub_meta = metadata[metadata['Treatment'] == group]
+         cols = sub_meta['Sample'].tolist()
+         ic(cols)
          # Check that we have at least 2 columns to compare, if not continue to next group
          if len(cols) < 2:
              continue
@@ -48,6 +66,8 @@ def filter_for_valid_values(df, metadata): # problem with this function or metho
          # Update 'keep_row' to True where at least 2 of the columns are not NaN
          df.loc[valid_sum >= 2, 'keep_row'] = True
      df = df[df['keep_row']].copy()
+
+     df = df[df['keep_row']]
      df.drop('keep_row', axis=1, inplace=True)
      return df     
  
@@ -109,9 +129,7 @@ def plot_histogram(df, imputed_values, title):
 
 def subset_data(df,  metadata):
     # need to map the cols to keep witht he metadata and drop/save cols that meet re requirements
-    
-    
-   
+
     relevant_samples = metadata['Sample'].values.tolist()
  
     columns_to_keep = ['Protein.Group'] + relevant_samples
@@ -124,6 +142,7 @@ def subset_metadata(metadata, subset):
     filtered_metadata = metadata[metadata['Treatment'].isin(subset)]
     return filtered_metadata
 
+
 def process_intensities(path, subset=[], quantification='href', plot_imputation=False):
     
     metadata = import_meta(path)
@@ -135,19 +154,35 @@ def process_intensities(path, subset=[], quantification='href', plot_imputation=
     total = subset_data(total,metadata)
     light = subset_data(light, metadata)
     nsp = subset_data(nsp, metadata)
-  
+
+def process_intensities(path, subset, quantification='href', plot_imputation=False):
+    metadata = import_meta(path)
+    # groups = metadata[metadata_sample_group].unique()
+    
+    total, light, nsp = get_dataframes(path,'href')
+    print('imported')
+    print(total[total['Protein.Group']=='P06730-EIF4E'])
+    metadata = subset_metadata(metadata, subset)
+    total = subset_data(total,metadata)
+    light = subset_data(light, metadata)
+    nsp = subset_data(nsp, metadata)
+    print('subseted')
+    print(total[total['Protein.Group']=='P06730-EIF4E'])
     # replace NaN and inf values
     total = replace_values(total)
     light = replace_values(light)
     nsp = replace_values(nsp)
   
+    print('replace')
+    print(total[total['Protein.Group']=='P06730-EIF4E'])
     
     # filter for valid values
     total = filter_for_valid_values(total, metadata)
     light = filter_for_valid_values(light, metadata)
     nsp = filter_for_valid_values(nsp, metadata)
     
-
+    print('valid values')
+    print(total[total['Protein.Group']=='P06730-EIF4E'])
     # log transform
     total.iloc[:,1:] = np.log2(total.iloc[:,1:])
     light.iloc[:,1:] = np.log2(light.iloc[:,1:])
@@ -176,6 +211,4 @@ def process_intensities(path, subset=[], quantification='href', plot_imputation=
     total_df.to_csv(f"{path}imputed/total.csv", sep=',',index=False)
 
 
-# path = 'G:/My Drive/Data/data/eIF4F pilot/'
-# subset = ['e+8h','e-8h', 'g1-8h', 'g1+8h','g2-8h', 'g2+8h','g3-8h', 'g3+8h']
-# process_intensities(path, subset, quantification='href', plot_imputation=True)
+
