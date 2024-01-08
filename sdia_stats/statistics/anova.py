@@ -23,6 +23,11 @@ def preform_anova(path, group, subset_cols, title):
     loader_nsp = alphastats.GenericLoader(f"{path}nsp.csv", 
                                       intensity_column = intensity_cols,
                                        index_column="Protein.Group")
+    
+    loader_total = alphastats.GenericLoader(f"{path}total.csv", 
+                                      intensity_column = intensity_cols,
+                                       index_column="Protein.Group")
+    
 
     df_light = alphastats.DataSet(
         loader = loader_light,
@@ -33,7 +38,12 @@ def preform_anova(path, group, subset_cols, title):
         loader = loader_nsp,
         metadata_path = meta,
         sample_column = 'Sample')
-
+    
+    df_total = alphastats.DataSet(
+        loader = loader_total,
+        metadata_path = meta,
+        sample_column = 'Sample')
+    
     # preprocess data, log2 transform
     df_nsp.preprocess(subset=True)
     df_light.preprocess(subset=True)
