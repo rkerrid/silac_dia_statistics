@@ -9,8 +9,6 @@ Created on Thu Nov 16 04:54:36 2023
 
 from sdia_stats.utils.manage_directories import create_directory
 
-from utils import manage_directories
-
 import pandas as pd
 import numpy as np
 from scipy import stats
@@ -41,21 +39,14 @@ def replace_values(df):
     df.replace([np.inf, -np.inf], np.nan, inplace=True)
     df.iloc[:,1:] = df.iloc[:,1:].apply(lambda x: np.where(x < 0.001, np.nan, x))
     return df
- 
 
-def filter_for_valid_values(df, metadata): # problem with this function or method, work around for loss of proteins that are in the dataframe is setting to true, need to fix this
-     df['keep_row'] = False
-
-     for group in metadata['Treatment'].unique():
-         sub_meta = metadata[metadata['Treatment'] == group]
-         cols = sub_meta['Sample'].tolist()
+         
 def filter_for_valid_values(df, metadata): 
      df['keep_row'] = False
    
      for group in metadata['Treatment'].unique():
          sub_meta = metadata[metadata['Treatment'] == group]
          cols = sub_meta['Sample'].tolist()
-         ic(cols)
          # Check that we have at least 2 columns to compare, if not continue to next group
          if len(cols) < 2:
              continue
@@ -139,42 +130,32 @@ def subset_data(df,  metadata):
     return df
 
 def subset_metadata(metadata, subset):
-    filtered_metadata = metadata[metadata['Treatment'].isin(subset)]
-    return filtered_metadata
+    if len(subset)>0:
+        metadata = metadata[metadata['Treatment'].isin(subset)]
+    return metadata
 
 
-def process_intensities(path, subset=[], quantification='href', plot_imputation=False):
-    
+
+
+def process_intensities(path, subset = [], quantification='href', plot_imputation=False):
     metadata = import_meta(path)
     # groups = metadata[metadata_sample_group].unique()
     
-    total, light, nsp = get_dataframes(path,quantification)
-    if len(subset) > 0:
-        metadata = subset_metadata(metadata, subset)
-    total = subset_data(total,metadata)
-    light = subset_data(light, metadata)
-    nsp = subset_data(nsp, metadata)
-
-def process_intensities(path, subset, quantification='href', plot_imputation=False):
-    metadata = import_meta(path)
-    # groups = metadata[metadata_sample_group].unique()
-    
-    total, light, nsp = get_dataframes(path,'href')
+    total, light, nsp = get_dataframes(path, quantification)
     print('imported')
-    print(total[total['Protein.Group']=='P06730-EIF4E'])
+    metadata = import_meta(path)
     metadata = subset_metadata(metadata, subset)
     total = subset_data(total,metadata)
     light = subset_data(light, metadata)
     nsp = subset_data(nsp, metadata)
     print('subseted')
-    print(total[total['Protein.Group']=='P06730-EIF4E'])
     # replace NaN and inf values
     total = replace_values(total)
     light = replace_values(light)
     nsp = replace_values(nsp)
   
     print('replace')
-    print(total[total['Protein.Group']=='P06730-EIF4E'])
+  
     
     # filter for valid values
     total = filter_for_valid_values(total, metadata)
@@ -182,7 +163,7 @@ def process_intensities(path, subset, quantification='href', plot_imputation=Fal
     nsp = filter_for_valid_values(nsp, metadata)
     
     print('valid values')
-    print(total[total['Protein.Group']=='P06730-EIF4E'])
+  
     # log transform
     total.iloc[:,1:] = np.log2(total.iloc[:,1:])
     light.iloc[:,1:] = np.log2(light.iloc[:,1:])
