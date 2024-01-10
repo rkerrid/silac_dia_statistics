@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 from icecream import ic
-
+from functools import reduce
 
 def load_and_prepare_data(file_path):
     """Load data from a CSV file and prepare it for analysis."""
