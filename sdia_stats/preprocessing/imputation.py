@@ -29,11 +29,11 @@ def import_meta(path):
      metadata = pd.read_csv(f"{path}meta.csv")
      return metadata
  
-def get_dataframes(path, quantification):
-    total = pd.read_csv(f"{path}protein intensities/total_{quantification}.csv", sep=',')
-    light = pd.read_csv(f"{path}protein intensities/light_{quantification}.csv", sep=',')
-    nsp = pd.read_csv(f"{path}protein intensities/nsp_{quantification}.csv", sep=',')
-    return total, light, nsp
+def get_dataframes(path):
+    # total = pd.read_csv(f"{path}protein intensities/total_{quantification}.csv", sep=',')
+    light = pd.read_csv(f"{path}light.csv", sep=',')
+    nsp = pd.read_csv(f"{path}nsp.csv", sep=',')
+    return  light, nsp
      
 def replace_values(df):
     df.replace([np.inf, -np.inf], np.nan, inplace=True)
@@ -137,20 +137,18 @@ def subset_metadata(metadata, subset):
 
 
 
-def process_intensities(path, subset = [], quantification='href', plot_imputation=False):
+def process_intensities(path, subset = [], plot_imputation=False):
     metadata = import_meta(path)
     # groups = metadata[metadata_sample_group].unique()
     
-    total, light, nsp = get_dataframes(path, quantification)
+    light, nsp = get_dataframes(path)
     print('imported')
     metadata = import_meta(path)
     metadata = subset_metadata(metadata, subset)
-    total = subset_data(total,metadata)
     light = subset_data(light, metadata)
     nsp = subset_data(nsp, metadata)
     print('subseted')
     # replace NaN and inf values
-    total = replace_values(total)
     light = replace_values(light)
     nsp = replace_values(nsp)
   
@@ -158,30 +156,25 @@ def process_intensities(path, subset = [], quantification='href', plot_imputatio
   
     
     # filter for valid values
-    total = filter_for_valid_values(total, metadata)
     light = filter_for_valid_values(light, metadata)
     nsp = filter_for_valid_values(nsp, metadata)
     
     print('valid values')
   
     # log transform
-    total.iloc[:,1:] = np.log2(total.iloc[:,1:])
     light.iloc[:,1:] = np.log2(light.iloc[:,1:])
     nsp.iloc[:,1:] = np.log2(nsp.iloc[:,1:])
     
     
     # impute with gausian shift
-    total_df, total_df_imputed = perform_imputation(total)
     nsp_df, nsp_df_imputed = perform_imputation(nsp)
     light_df, light_df_imputed = perform_imputation(light)
  
     
     if plot_imputation:
-        plot_histogram(total_df, total_df_imputed, 'Total')
         plot_histogram(nsp_df, nsp_df_imputed, "NSP")
         plot_histogram(light_df, light_df_imputed, "Light")
         # base 2 exponentiation before saving
-    total_df.iloc[:,1:] = 2**total_df.iloc[:,1:]
     nsp_df.iloc[:,1:] = 2**nsp_df.iloc[:,1:]
     light_df.iloc[:,1:] = 2**light_df.iloc[:,1:]
     
@@ -189,7 +182,6 @@ def process_intensities(path, subset = [], quantification='href', plot_imputatio
     metadata.to_csv(f"{path}/imputed/meta.csv", sep=',',index=False)
     nsp_df.to_csv(f"{path}imputed/nsp.csv", sep=',',index=False)
     light_df.to_csv(f"{path}imputed/light.csv", sep=',',index=False)
-    total_df.to_csv(f"{path}imputed/total.csv", sep=',',index=False)
 
 
 
