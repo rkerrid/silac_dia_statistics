@@ -176,7 +176,7 @@ def create_volcano_plot(df, title, pois, uniprot, path):
 
 
 
-def simple_volcano_plot(df, title, protein_list, uniprot, significance_level=0.05, fold_change=1):
+def simple_volcano_plot(df, title, path, protein_list, uniprot, significance_level=0.05, fold_change=1):
     # Calculate -log10(p_value)
     df['-log10(p_value)'] = -np.log10(df['pval'])
 
@@ -217,7 +217,9 @@ def simple_volcano_plot(df, title, protein_list, uniprot, significance_level=0.0
     plt.title(title)
     plt.xlabel('Log2 Fold Change')
     plt.ylabel('-Log10(p-value)')
-
+    
+    plt.savefig(f'{path}{title}.png', format='png', dpi=300)
+    
     plt.show()
 
 
@@ -238,12 +240,15 @@ def loop_and_plot_results(path, pois, interactive=False, uniprot=False):
                 df = reduce_df_size(df, 1000)
                 create_volcano_plot(df, name, pois, uniprot, path)
             else:
-                simple_volcano_plot(df, name, pois, uniprot)
+                simple_volcano_plot(df, name, path, pois, uniprot)
         else:
             create_volcano_plot(df, name, pois, uniprot, path)
     
     
-    
+if __name__ == '__main__':
+    path = 'G:/My Drive/Data/data/poc4/H/normalized/imputed/ttest results/'
+    pois = ['FTH1', 'FTL', 'TFRC', 'BRD4', 'CDK4', 'CDK6','EIF4E','EIF4G1','SALL4', 'ZNF827','ZNF692','ZFP91','DTWD1', 'RNF166', 'FAM83F']
+    loop_and_plot_results(path, pois)
     
     
     

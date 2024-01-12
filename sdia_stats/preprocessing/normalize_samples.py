@@ -17,7 +17,8 @@ def import_dataframe(path, quantification, channel):
     """
     Import a dataframe based on given parameters.
     """
-    df = pd.read_csv(f'{path}{channel}_{quantification}.csv', sep=',')
+    # df = pd.read_csv(f'{path}{channel}_{quantification}.csv', sep=',')
+    df = pd.read_csv(f'{path}{channel}.csv', sep=',')
     return df
 
 def select_columns(df, keyword, path):

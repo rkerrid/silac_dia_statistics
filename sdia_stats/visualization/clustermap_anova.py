@@ -12,7 +12,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from icecream import ic
 
-def anova_clustermap(df, path, samples, title, pval=0.0005):
+def anova_clustermap(df, path, samples, title, pval=0.01):
     filtered = df[df['ANOVA_pvalue']<pval]
     cols = ['Protein.Group']+samples
     filtered = filtered[cols]
