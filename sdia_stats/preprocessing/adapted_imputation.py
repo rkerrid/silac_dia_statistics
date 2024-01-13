@@ -95,10 +95,13 @@ def get_global_imputation_values(df, metadata):
     
     return global_mu, global_std
 
-def impute_values(df, metadata):
+def impute_values(df, metadata, channel):
     """
     Impute missing values in the dataframe based on metadata.
     """
+    strict = False
+    if channel == 'nsp':
+        strict = True
     
     df_copy = df.copy(deep=True)
     df_copy = subset_data(df_copy, metadata)
@@ -108,12 +111,14 @@ def impute_values(df, metadata):
     global_mu = df['global_mu'].iloc[0]
     global_std = df['global_std'].iloc[0]
     
-    
+    adjusted_mu = global_mu
     for col in tqdm(cols, desc="Imputing columns"):
         for index, row in df.iterrows():
             if pd.isna(row[col]):
-                if row['lowest_mean'] + global_std*0.5 < global_mu:
+                if strict:
                     adjusted_mu = row['lowest_mean'] - global_std
+                if row['lowest_mean'] + global_std*0.5 < global_mu:
+                    # adjusted_mu = row['lowest_mean'] - global_std*2
                     imputed_value = np.random.normal(adjusted_mu, global_std)
                 else:
                     imputed_value = np.random.normal(global_mu, global_std)
@@ -175,8 +180,8 @@ def process_intensities(path, subset=[], plot_imputation=False, quantification='
     light_annotated = annotate_df(light, metadata)
     nsp_annotated = annotate_df(nsp, metadata)
     print('preform imputation')
-    light = impute_values(light_annotated, metadata)
-    nsp = impute_values(nsp_annotated, metadata)
+    light = impute_values(light_annotated, metadata,'light')
+    nsp = impute_values(nsp_annotated, metadata, 'nsp')
 
     if plot_imputation:
         plot_histograms(light, 'Light', metadata)
