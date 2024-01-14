@@ -13,7 +13,7 @@ from sdia_stats.utils.manage_directories import create_directory
 from icecream import ic
 
 
-def import_dataframe(path, quantification, channel):
+def import_dataframe(path, channel):
     """
     Import a dataframe based on given parameters.
     """
@@ -164,21 +164,20 @@ def join_dfs(left, right):
     """
     return pd.merge(left, right, on='Protein.Group', how='outer')
 
-def derive_normalization_factors(path, group, quantification):
+def derive_normalization_factors(path, group):
     normalization_factors = []
     control_df_list = []
     
     for control in group.keys():
         # Get control data that will not be normalized
-        df_light = import_dataframe(path, quantification, 'light')
+        df_light = import_dataframe(path, 'light')
         df_light_control = select_columns(df_light, control, path)
         control_df_list.append(df_light_control)
     
         for treatment in group[control]:
             # Process for light data
-            control_light, sample_light = import_pairs(path, control, treatment, quantification, 'light')
-            control_light_filtered, sample_light_filtered = filter_rows(control_light), filter_rows(sample_light)
-            control_light_common, sample_light_common = find_common_proteins(control_light_filtered, sample_light_filtered)
+            control_light, sample_light = import_pairs(path, control, treatment,  'light')
+            control_light_common, sample_light_common = find_common_proteins(control_light, sample_light)
             
             # Calculate normalization factor for light data
             normalization_factor = get_normalization_factor(control_light_common, sample_light_common, f'{treatment}')
@@ -186,23 +185,23 @@ def derive_normalization_factors(path, group, quantification):
             normalization_factors.append(result_tuple)
     return normalization_factors, control_df_list
 
-def apply_normalization(normalization_set, path, channel, quantification):
+def apply_normalization(normalization_set, path, channel):
     control, treatment, normalization_factor = normalization_set
-    df = import_dataframe(path, quantification, channel)
+    df = import_dataframe(path,  channel)
     df_sample = select_columns(df, treatment, path)
     df_sample = normalize_proteomes(df_sample, normalization_factor, treatment, channel)
     df_sample = reverse_log(df_sample)
   
     return df_sample
 
-def main(path, group, quantification):
-    metadata = pd.read_csv(f'{path}../meta.csv', sep=',')
+def main(path, group):
+    metadata = pd.read_csv(f'{path}meta.csv', sep=',')
    
-    normalization_factors, control_df_list = derive_normalization_factors(path, group, quantification)
+    normalization_factors, control_df_list = derive_normalization_factors(path, group)
     print(normalization_factors)
     nsp_df_list, light_df_list = [], []
-    df_light = import_dataframe(path, quantification, 'light')
-    df_nsp = import_dataframe(path, quantification, 'nsp')
+    df_light = import_dataframe(path, 'light')
+    df_nsp = import_dataframe(path, 'nsp')
     for control in group.keys():
         control_df = select_columns(df_light, control, path)
         control_nsp_df = select_columns(df_nsp, control, path)
@@ -214,8 +213,8 @@ def main(path, group, quantification):
         nsp_df_list.append(control_nsp_df)
         
     for normalization_set in normalization_factors:
-        light_norm = apply_normalization(normalization_set, path, 'light', quantification)
-        nsp_norm = apply_normalization(normalization_set, path,  'nsp', quantification)
+        light_norm = apply_normalization(normalization_set, path, 'light')
+        nsp_norm = apply_normalization(normalization_set, path,  'nsp')
         
 
         nsp_df_list.append(nsp_norm)
@@ -225,32 +224,32 @@ def main(path, group, quantification):
     save_combined_data(nsp_df_list, light_df_list, path, metadata)
     
 # Reintroduced import_pairs function
-def import_pairs(path, control, sample, quantification, channel):
-    df = import_dataframe(path, quantification, channel)
+def import_pairs(path, control, sample, channel):
+    df = import_dataframe(path, channel)
 
     control_df = select_columns(df, control, path)
     sample_df = select_columns(df, sample, path)   
 
     return control_df, sample_df
 
-def select_control_data(path, quantification, channel):
-    df = pd.read_csv(f'{path}{channel}_{quantification}.csv', sep=',')
-    return select_columns(df, 'control', path)
+# def select_control_data(path, quantification, channel):
+#     df = pd.read_csv(f'{path}{channel}_{quantification}.csv', sep=',')
+#     return select_columns(df, 'control', path)
 
 def save_combined_data(nsp_df_list, light_df_list, path, metadata):
     nsp_complete_df = reduce(join_dfs, nsp_df_list)
     light_complete_df = reduce(join_dfs, light_df_list)
     
-    new_path = f"{path}../"
-    create_directory(new_path,'normalized')
+    # new_path = f"{path}../"
+    create_directory(path,'normalized')
     
 
-    metadata.to_csv(f"{new_path}normalized/meta.csv", sep=',', index=False)
-    light_complete_df.to_csv(f"{new_path}normalized/light.csv", sep=',', index=False)
-    nsp_complete_df.to_csv(f"{new_path}normalized/nsp.csv", sep=',', index=False)
+    metadata.to_csv(f"{path}normalized/meta.csv", sep=',', index=False)
+    light_complete_df.to_csv(f"{path}normalized/light.csv", sep=',', index=False)
+    nsp_complete_df.to_csv(f"{path}normalized/nsp.csv", sep=',', index=False)
 
 if __name__ == '__main__':
-    path = 'G:/My Drive/Data/data/poc4/H/protein intensities/'
+    path = 'G:/My Drive/Data/data/poc4/H/protein_groups/'
     group = {'control': ['FAC', 'DFO', 'ARV4', 'FAC_ARV', 'ARV6','4EG1', 'FAC_Gu', 'Gu2', 'Gu8']
              }
     main(path, group, 'href')

@@ -27,7 +27,7 @@ def subset_metadata(metadata, subset):
         metadata = metadata[metadata['Treatment'].isin(subset)]
     return metadata
 
-def load_dataframes(path, quantification):
+def load_dataframes(path):
     """
     Load dataframes from given path and quantification method.
     """
@@ -77,56 +77,157 @@ def add_lowest_sample_mean_for_row(df, metadata):
 
     return df
 
-def get_global_imputation_values(df, metadata):
+def get_global_imputation_values(df, metadata, channel):
     df_copy = df.copy(deep = True)
     df_copy = subset_data(df_copy, metadata)
     cols = df_copy.columns[1:]
     df_copy = df_copy[cols]
+    # just get the control nsp distribution if the data is the nsp dataset
+    subset = ""
+    if channel == 'nsp':
+        df_copy = df_copy[['control_I', 'control_II', 'control_III']] # need to make dynamic
+        cols = ['control_I', 'control_II', 'control_III']
+        subset = 'control samples'
+    else:
+        subset = 'all samples'
+    ic(subset)
     data = df_copy.dropna()
     ic(data)
-    global_mu, global_std = stats.norm.fit(data)
-    ic(global_mu)
-    ic(global_std)
+    mu, std = stats.norm.fit(data)
+    ic(mu)
+    ic(std)
 
-    global_mu = global_mu - 1.8 * global_std
-    global_std = global_std * 0.3
+    global_mu = mu - 1.8 * std
+    global_std = std * 0.3
     ic(global_mu)
     ic(global_std)
     
+    # plot distribution of global dataset
+    # Creating the histogram
+    # Flatten the DataFrame to a single series
+    flat_data = data[cols].values.flatten()
+    plt.hist(flat_data, bins=300)
+    plt.axvline(global_mu, color='green', linestyle='dashed', linewidth=2)
+    plt.axvline(mu, color='red', linestyle='dashed', linewidth=2)
+
+
+    # Adding titles and labels
+    plt.title(f'Histogram of {channel} {subset}')
+    plt.xlabel('Frequency')
+    plt.ylabel('Log2 intensity')
+    plt.show()
     return global_mu, global_std
+
+# def impute_values(df, metadata, channel):
+#     """
+#     Impute missing values in the dataframe based on metadata.
+#     """
+#     # strict = False
+#     # if channel == 'nsp':
+#     #     strict = True
+    
+#     df_copy = df.copy(deep=True)
+#     df_copy = subset_data(df_copy, metadata)
+#     cols = df_copy.columns.values.tolist()
+    
+#     df['was_imputed'] = False
+#     global_mu = df['global_mu'].iloc[0]
+#     global_std = df['global_std'].iloc[0]
+    
+    
+#     for col in tqdm(cols, desc="Imputing columns"):
+#         for index, row in df.iterrows():
+#             if pd.isna(row[col]):
+#                 adjusted_mu = global_mu
+#                 imputed_value = np.random.normal(global_mu, global_std)
+#                 if row['lowest_mean'] + global_std < global_mu:
+#                     adjusted_mu = row['lowest_mean'] - global_std
+#                     imputed_value = np.random.normal(adjusted_mu, global_std)
+         
+#                 df.at[index, 'mu_used_for_imputation'] = imputed_value
+#                 df.at[index, col] = imputed_value
+#                 df.at[index, 'was_imputed'] = True
+
+#     return df
+
+
+# def impute_values(df, metadata, channel):
+#     """
+#     Impute missing values in the dataframe based on metadata.
+#     """
+#     df_copy = df.copy(deep=True)
+#     df_copy = subset_data(df_copy, metadata)
+#     cols = df_copy.columns.values.tolist()
+
+#     global_mu = df['global_mu'].iloc[0]
+#     global_std = df['global_std'].iloc[0]
+
+#     # Create a DataFrame for imputed values
+#     imputed_values = pd.DataFrame(index=df.index, columns=cols)
+
+#     # Vectorized calculation for adjusted mean
+#     adjusted_mu = np.where(df['lowest_mean'] + global_std < global_mu, 
+#                            df['lowest_mean'] - global_std, 
+#                            global_mu)
+
+#     # Vectorized imputation for each column
+#     for col in cols:
+#         # Generate random values for imputation
+#         imputed_values[col] = np.random.normal(adjusted_mu, global_std, size=len(df))
+
+#         # Update only NaN values in the original DataFrame
+#         df.loc[df[col].isna(), col] = imputed_values[col]
+
+#     # Update the 'was_imputed' column
+#     df['was_imputed'] = df[cols].isna().any(axis=1)
+
+#     # Update the 'mu_used_for_imputation' column
+#     df['mu_used_for_imputation'] = adjusted_mu
+
+#     return df
+
 
 def impute_values(df, metadata, channel):
     """
     Impute missing values in the dataframe based on metadata.
     """
-    strict = False
-    if channel == 'nsp':
-        strict = True
-    
     df_copy = df.copy(deep=True)
     df_copy = subset_data(df_copy, metadata)
     cols = df_copy.columns.values.tolist()
-    
-    df['was_imputed'] = False
+
     global_mu = df['global_mu'].iloc[0]
     global_std = df['global_std'].iloc[0]
-    
-    adjusted_mu = global_mu
-    for col in tqdm(cols, desc="Imputing columns"):
-        for index, row in df.iterrows():
-            if pd.isna(row[col]):
-                if strict:
-                    adjusted_mu = row['lowest_mean'] - global_std
-                if row['lowest_mean'] + global_std*0.5 < global_mu:
-                    # adjusted_mu = row['lowest_mean'] - global_std*2
-                    imputed_value = np.random.normal(adjusted_mu, global_std)
-                else:
-                    imputed_value = np.random.normal(global_mu, global_std)
-                df.at[index, 'mu_used_for_imputation'] = imputed_value
-                df.at[index, col] = imputed_value
-                df.at[index, 'was_imputed'] = True
+
+    # Create a DataFrame to keep track of NaNs before imputation
+    nan_before_imputation = df[cols].isna()
+
+    # Vectorized calculation for adjusted mean
+    adjusted_mu = np.where(df['lowest_mean'] + global_std < global_mu, 
+                           df['lowest_mean'] - global_std, 
+                           global_mu)
+
+    # Vectorized imputation for each column
+    for col in cols:
+        # Identify rows with NaN values for this column
+        nan_rows = df[col].isna()
+
+        # Generate random values only for the NaN values
+        random_values = np.random.normal(adjusted_mu[nan_rows], global_std, size=nan_rows.sum())
+
+        # Update only NaN values in the original DataFrame
+        df.loc[nan_rows, col] = random_values
+
+    # Update the 'mu_used_for_imputation' column
+    df['mu_used_for_imputation'] = adjusted_mu
+
+    # Update 'was_imputed' to True where NaNs were present before imputation
+    df['was_imputed'] = nan_before_imputation.any(axis=1)
 
     return df
+
+
+
+
 
 def plot_histograms(df, title, metadata):
     """
@@ -150,13 +251,15 @@ def plot_histograms(df, title, metadata):
         plt.legend()
         plt.show()
 
-def annotate_df(df, metadata):
+def annotate_df(df, metadata, channel):
     print('annotate df with the lowest mean value of observed proteins within each sample group per row')
-    global_mu, global_std = get_global_imputation_values(df, metadata)
+    global_mu, global_std = get_global_imputation_values(df, metadata, channel)
     df['global_mu'] = global_mu
     df['global_std'] = global_std
     df['mu_used_for_imputation'] = np.nan
+        
     df = add_lowest_sample_mean_for_row(df, metadata)
+        
     return df
     
 def process_intensities(path, subset=[], plot_imputation=False, quantification='href'):
@@ -165,7 +268,7 @@ def process_intensities(path, subset=[], plot_imputation=False, quantification='
     """
     print('import data')
     metadata = import_metadata(path)
-    light, nsp = load_dataframes(path, quantification)
+    light, nsp = load_dataframes(path)
     print('Subset data')
     metadata = subset_metadata(metadata, subset)
     light = subset_data(light, metadata)
@@ -173,12 +276,14 @@ def process_intensities(path, subset=[], plot_imputation=False, quantification='
     print('preprocess data')
     light = preprocess_dataframe(light)
     nsp = preprocess_dataframe(nsp)
-    print('filter for valid values')
-    light = filter_valid_values(light, metadata)
-    nsp = filter_valid_values(nsp, metadata)
+    # print('filter for valid values')    # no need to filter for valid vals after previouse script
+    # light = filter_valid_values(light, metadata)
+    # nsp = filter_valid_values(nsp, metadata)
     print('annotate df with std,mu,lowestval, etc')
-    light_annotated = annotate_df(light, metadata)
-    nsp_annotated = annotate_df(nsp, metadata)
+    light_annotated = annotate_df(light, metadata, 'light')
+    nsp_annotated = annotate_df(nsp, metadata, 'nsp')
+    light_annotated_copy = light_annotated.copy(deep = True)
+    nsp_annotated_copy = nsp_annotated.copy(deep = True)
     print('preform imputation')
     light = impute_values(light_annotated, metadata,'light')
     nsp = impute_values(nsp_annotated, metadata, 'nsp')
@@ -194,20 +299,21 @@ def process_intensities(path, subset=[], plot_imputation=False, quantification='
     light.iloc[:,1:] = 2**light.iloc[:,1:]
     nsp.iloc[:,1:] = 2**nsp.iloc[:,1:]
     
-    save_imputed_data(light, nsp, path)
-    return light, nsp, light_annotated, nsp_annotated
+    save_imputed_data(light, nsp, metadata, path)
+    return light, nsp, light_annotated, nsp_annotated, light_annotated_copy, nsp_annotated_copy
 
-def save_imputed_data(light_df, nsp_df, path):
+def save_imputed_data(light_df, nsp_df, metadata, path):
     """
     Save the imputed data to a specified path.
     """
     create_directory(f"{path}", "imputed")
     light_df.to_csv(f"{path}imputed/light.csv", sep=',', index=False)
     nsp_df.to_csv(f"{path}imputed/nsp.csv", sep=',', index=False)
-
+    metadata.to_csv(f"{path}imputed/meta.csv", sep=',', index=False)
+    
 if __name__ == '__main__':
-    path = 'G:/My Drive/Data/data/poc4/H/normalized/'
-    light, nsp, light_annotated, nsp_annotated = process_intensities(path, plot_imputation=True)
+    path = 'G:/My Drive/Data/data/poc4/H/protien_groups/normalized/'
+    light, nsp, light_annotated, nsp_annotated, light_annotated_copy, nsp_annotated_copy = process_intensities(path, plot_imputation=True)
 
 
 # from sdia_stats.utils.manage_directories import create_directory
