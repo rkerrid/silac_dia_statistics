@@ -40,19 +40,49 @@ import pandas as pd
 
 # run sample norm first
 
-group = {'control': ['FAC', 'DFO', 'ARV4', 'FAC_ARV', 'ARV6','4EG1', 'FAC_Gu', 'Gu2', 'Gu8','Len1', 'Len10']
+# group = {'control': ['FAC', 'DFO', 'ARV4', 'FAC_ARV', 'ARV6','4EG1', 'FAC_Gu', 'Gu2', 'Gu8','Len1', 'Len10']
+#               }
+
+# path = 'G:/My Drive/Data/data/240112 poc4 test/new pipeline new stats/H/protein intensities/'
+# # filter contams and valid values
+# metadata_path = 'G:/My Drive/Data/data/240112 poc4 test/new pipeline new stats/H/'
+# filter_contams_and_non_valid_rows.filter_protein_intensities(path, metadata_path, 'href')
+# # normalize samples
+# path = 'G:/My Drive/Data/data/240112 poc4 test/new pipeline new stats/H/protein_groups/'
+# normalize_samples.main(path, group)
+# path = 'G:/My Drive/Data/data/240112 poc4 test/new pipeline new stats/H/protein_groups/normalized/'
+# light, nsp, light_annotated, nsp_annotated, light_annotated_copy, nsp_annotated_copy = adapted_imputation.process_intensities(path, plot_imputation=True)
+# path = 'G:/My Drive/Data/data/240112 poc4 test/new pipeline new stats/H/protein_groups/normalized/imputed/'
+# meta = f'{path}meta.csv'
+# # Set the treatments you would like to compare using the t-test
+# groups = {
+#     "FAC vs control": ('FAC','control'),
+#     "DFO vs control": ('DFO', 'control'),
+#     "ARV825 vs control": ('ARV6','control'),
+#     "Gu3340 vs control":('Gu8', 'control'),
+#     "4EGI-1 vs control":('4EG1','control'),
+#     "FAC with ARV825 vs control": ('FAC_ARV','control')}
+
+# ttest.ttest(path, meta, groups)
+# path = 'G:/My Drive/Data/data/240112 poc4 test/new pipeline new stats/H/protein_groups/normalized/imputed/ttest results/'
+# pois = ['FTH1', 'FTL', 'TFRC', 'ACO1', 'IREB2','SLC11A2','CYBRD1', 'ACO2', 'BRD4', 'CDK4', 'CDK6','EIF4E','EIF4G1','SALL4', 'ZNF827','ZNF692','ZFP91','DTWD1', 'RNF166', 'FAM83F','EIF4EBP1']
+# loop_and_plot_results(path, pois, interactive=False, uniprot=False)
+
+group = {'control': ['FAC', 'DFO', 'ARV4', 'FACwARV', 'ARV6','4EGI', 'FACwGu', 'Gu2', 'Gu8','len1', 'len10']
               }
 
-path = 'G:/My Drive/Data/data/poc4/H/protein intensities/'
+path = 'G:/My Drive/Data/data/240112 poc4 test/new pipeline new stats/N/protein intensities/'
 # filter contams and valid values
-metadata_path = 'G:/My Drive/Data/data/poc4/H/'
-filter_contams_and_non_valid_rows.filter_protein_intensities(path, metadata_path, 'href')
+metadata_path = 'G:/My Drive/Data/data/240112 poc4 test/new pipeline new stats/N/'
+filter_contams_and_non_valid_rows.filter_protein_intensities(path, metadata_path, 'dlfq')
 # normalize samples
-path = 'G:/My Drive/Data/data/poc4/H/protein_groups/'
-normalize_samples.main(path, group)
-path = 'G:/My Drive/Data/data/poc4/H/protein_groups/normalized/'
-light, nsp, light_annotated, nsp_annotated, light_annotated_copy, nsp_annotated_copy = adapted_imputation.process_intensities(path, plot_imputation=True)
-path = 'G:/My Drive/Data/data/poc4/H/protein_groups/normalized/imputed/'
+# path = 'G:/My Drive/Data/data/240112 poc4 test/new pipeline new stats/N/protein_groups/'
+# normalize_samples.main(path, group)
+path = 'G:/My Drive/Data/data/240112 poc4 test/new pipeline new stats/N/protein_groups/'
+subset_list = ['4EGI_1', '4EGI_2', '4EGI_3', 'ARV4_1', 'ARV4_2', 'ARV4_3', 'ARV6_1', 'ARV6_2', 'ARV6_3', 'DFO_1', 'DFO_2', 'DFO_3', 'FAC_1', 'FAC_2', 'FAC_3', 'FACwARV_1', 'FACwARV_2', 'FACwARV_3', 'FACwGu1', 'FACwGu_2', 'FACwGu_3',  'Gu8_1', 'Gu8_2', 'Gu8_3', 'control_1', 'control_2', 'control_3', 'len10_1', 'len10_2', 'len10_3', 'len1_1', 'len1_2', 'len1_3']
+subset_list = ['4EGI', 'ARV4', 'ARV6', 'DFO','FAC','FACwARV','FACwGu','Gu8','control','len1','len10']
+light, nsp, light_annotated, nsp_annotated, light_annotated_copy, nsp_annotated_copy = adapted_imputation.process_intensities(path, subset=subset_list,plot_imputation=True)
+path = 'G:/My Drive/Data/data/240112 poc4 test/new pipeline new stats/N/protein_groups/imputed/'
 meta = f'{path}meta.csv'
 # Set the treatments you would like to compare using the t-test
 groups = {
@@ -60,13 +90,15 @@ groups = {
     "DFO vs control": ('DFO', 'control'),
     "ARV825 vs control": ('ARV6','control'),
     "Gu3340 vs control":('Gu8', 'control'),
-    "4EGI-1 vs control":('4EG1','control'),
-    "FAC with ARV825 vs control": ('FAC_ARV','control')}
+    "4EGI-1 vs control":('4EGI','control'),
+    "FAC with ARV825 vs control": ('FACwARV','control')}
 
 ttest.ttest(path, meta, groups)
-path = 'G:/My Drive/Data/data/poc4/H/protein_groups/normalized/imputed/ttest results/'
+path = 'G:/My Drive/Data/data/240112 poc4 test/new pipeline new stats/N/protein_groups/imputed/ttest results/'
 pois = ['FTH1', 'FTL', 'TFRC', 'ACO1', 'IREB2','SLC11A2','CYBRD1', 'ACO2', 'BRD4', 'CDK4', 'CDK6','EIF4E','EIF4G1','SALL4', 'ZNF827','ZNF692','ZFP91','DTWD1', 'RNF166', 'FAM83F','EIF4EBP1']
 loop_and_plot_results(path, pois, interactive=False, uniprot=False)
+
+
 
 # from sdia_stats.statistics import anova
 # path = 'G:/My Drive/Data/data/poc4/H/normalized/imputed/'
