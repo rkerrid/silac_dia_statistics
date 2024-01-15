@@ -77,7 +77,7 @@ def add_lowest_sample_mean_for_row(df, metadata):
 
     return df
 
-def get_global_imputation_values(df, metadata, channel):
+def get_global_imputation_values(df, metadata, channel, control_samples):
     df_copy = df.copy(deep = True)
     df_copy = subset_data(df_copy, metadata)
     cols = df_copy.columns[1:]
@@ -85,12 +85,10 @@ def get_global_imputation_values(df, metadata, channel):
     # just get the control nsp distribution if the data is the nsp dataset
     subset = ""
     if channel == 'nsp':
-        # df_copy = df_copy[['control_I', 'control_II', 'control_III']] # need to make dynamic
-        # cols = ['control_I', 'control_II', 'control_III']
-        # subset = 'control samples'
-        df_copy = df_copy[['control_1', 'control_2', 'control_3']] # need to make dynamic
-        cols = ['control_1', 'control_2', 'control_3']
+        cols = control_samples
+        df_copy = df_copy[cols] # need to make dynamic
         subset = 'control samples'
+        
     else:
         subset = 'all samples'
     ic(subset)
@@ -184,9 +182,9 @@ def plot_histograms(df, title, metadata):
         plt.legend()
         plt.show()
 
-def annotate_df(df, metadata, channel):
+def annotate_df(df, metadata, channel, control_samples):
     print('annotate df with the lowest mean value of observed proteins within each sample group per row')
-    global_mu, global_std = get_global_imputation_values(df, metadata, channel)
+    global_mu, global_std = get_global_imputation_values(df, metadata, channel,control_samples)
     df['global_mu'] = global_mu
     df['global_std'] = global_std
     df['mu_used_for_imputation'] = np.nan
@@ -195,7 +193,7 @@ def annotate_df(df, metadata, channel):
         
     return df
     
-def process_intensities(path, subset=[], plot_imputation=False):
+def process_intensities(path, control_samples, subset=[], plot_imputation=False):
     """
     Main function to process protein intensities.
     """
@@ -209,12 +207,17 @@ def process_intensities(path, subset=[], plot_imputation=False):
     print('preprocess data')
     light = preprocess_dataframe(light)
     nsp = preprocess_dataframe(nsp)
-    # print('filter for valid values')    # no need to filter for valid vals after previouse script
-    # light = filter_valid_values(light, metadata)
-    # nsp = filter_valid_values(nsp, metadata)
     print('annotate df with std,mu,lowestval, etc')
-    light_annotated = annotate_df(light, metadata, 'light')
-    nsp_annotated = annotate_df(nsp, metadata, 'nsp')
+    # for nsp data I need the control samples from the control_samples list
+    # Filtering and obtaining the samples
+    matching_control_samples = metadata[metadata['Treatment'].isin(control_samples)]['Sample']
+    
+    # Convert to a list
+    control_samples = matching_control_samples.tolist()
+    ic(control_samples)
+    
+    light_annotated = annotate_df(light, metadata, 'light', control_samples)
+    nsp_annotated = annotate_df(nsp, metadata, 'nsp', control_samples)
     light_annotated_copy = light_annotated.copy(deep = True)
     nsp_annotated_copy = nsp_annotated.copy(deep = True)
     print('preform imputation')
