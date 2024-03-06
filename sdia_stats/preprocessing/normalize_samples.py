@@ -26,6 +26,7 @@ def select_columns(df, keyword, path):
     Select columns from a DataFrame based on a keyword.
     """
     metadata = pd.read_csv(f'{path}../meta.csv', sep=',')
+    ic(metadata.columns.values.tolist())
     matching_samples = metadata[metadata['Treatment'] == keyword]['Sample'].tolist()
 
     # selected_columns = [col for col in df.columns if keyword in col]
@@ -65,8 +66,8 @@ def get_normalization_factor(df_control, df_sample, title):
 
     # Plotting
     def plot_histogram(control_data, sample_data, state):
-        plt.hist(control_data, bins=50, alpha=0.8, color='blue', label='control')
-        plt.hist(sample_data, bins=50, alpha=0.8, color='green', label='sample')
+        plt.hist(control_data, bins=100, alpha=0.8, color='blue', label='control')
+        plt.hist(sample_data, bins=100, alpha=0.8, color='green', label='sample')
         control_median_value = np.median(control_data)
         sample_median_value = np.median(sample_data)
         plt.axvline(control_median_value, color='blue', linestyle='dashed', linewidth=2, label=f'Median control')

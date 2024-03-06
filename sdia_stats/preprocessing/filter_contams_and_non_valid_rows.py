@@ -12,21 +12,21 @@ import matplotlib.pyplot as plt
 from icecream import ic
 
 
-def import_dataframe(path, quantification, channel):
+def import_dataframe(path, channel):
     """
     Import a dataframe based on given parameters.
     """
     # df = pd.read_csv(f'{path}{channel}_{quantification}.csv', sep=',')
-    df = pd.read_csv(f'{path}{channel}_{quantification}.csv', sep=',')
+    df = pd.read_csv(f'{path}{channel}.csv', sep=',')
     return df
 
 def save_filtered_data(light, nsp, metadata, path):
     new_path = f"{path}../"
-    create_directory(new_path,'protein_groups')
+    create_directory(new_path,'protein_groups_filtered')
 
-    metadata.to_csv(f"{new_path}protein_groups/meta.csv", sep=',', index=False)
-    light.to_csv(f"{new_path}protein_groups/light.csv", sep=',', index=False)
-    nsp.to_csv(f"{new_path}protein_groups/nsp.csv", sep=',', index=False)
+    metadata.to_csv(f"{new_path}protein_groups_filtered/meta.csv", sep=',', index=False)
+    light.to_csv(f"{new_path}protein_groups_filtered/light.csv", sep=',', index=False)
+    nsp.to_csv(f"{new_path}protein_groups_filtered/nsp.csv", sep=',', index=False)
     
     
 def log_transform(df):
@@ -77,8 +77,8 @@ def plot_histogram(df1, df2,title,label_df_1, label_df_2):
     data2 = data2[~np.isnan(data2)]
 
     # Plotting histograms
-    plt.hist(data1, bins=50, alpha=0.8, color='blue', label=label_df_1)
-    plt.hist(data2, bins=50, alpha=0.8, color='green', label=label_df_2)
+    plt.hist(data1, bins=100, alpha=0.8, color='blue', label=label_df_1)
+    plt.hist(data2, bins=100, alpha=0.8, color='green', label=label_df_2)
 
     plt.xlabel('Log2 intensity')
     plt.ylabel('Frequency')
@@ -91,11 +91,11 @@ def filter_df(df):
     df, df_non_valid_rows = filter_for_valid_values(df)
     return df, df_non_valid_rows
 
-def filter_protein_intensities(path, metadata_path, quantification):
+def filter_protein_intensities(path, metadata_path):
     # import data
     metadata = pd.read_csv(f'{metadata_path}meta.csv', sep=',')
-    df_light = import_dataframe(path, quantification, 'light')
-    df_nsp = import_dataframe(path, quantification, 'nsp')
+    df_light = import_dataframe(path,  'light')
+    df_nsp = import_dataframe(path,  'nsp')
     # log transform data
     df_light = log_transform(df_light)
     df_nsp = log_transform(df_nsp)

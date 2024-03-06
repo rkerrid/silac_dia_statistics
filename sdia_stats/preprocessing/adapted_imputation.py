@@ -247,7 +247,7 @@ def save_imputed_data(light_df, nsp_df, metadata, path):
     nsp_df.to_csv(f"{path}imputed/nsp.csv", sep=',', index=False)
     metadata.to_csv(f"{path}imputed/meta.csv", sep=',', index=False)
     
-if __name__ == '__main__':
-    path = 'G:/My Drive/Data/data/poc4/H/protien_groups/normalized/'
-    light, nsp, light_annotated, nsp_annotated, light_annotated_copy, nsp_annotated_copy = process_intensities(path, plot_imputation=True)
+# if __name__ == '__main__':
+#     path = 'G:/My Drive/Data/data/poc4/H/protien_groups/normalized/'
+#     light, nsp, light_annotated, nsp_annotated, light_annotated_copy, nsp_annotated_copy = process_intensities(path, plot_imputation=True)
 
