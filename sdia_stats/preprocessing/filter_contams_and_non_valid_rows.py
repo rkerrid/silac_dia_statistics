@@ -115,13 +115,7 @@ def filter_protein_intensities(path, metadata_path):
     
     save_filtered_data(light_df, nsp_df, metadata, path)
     
-    
-if __name__ == '__main__':
-    path = 'G:/My Drive/Data/data/poc4/H/protein intensities/'
-    metadata_path = 'G:/My Drive/Data/data/poc4/H/'
-    metadata = pd.read_csv(f'{metadata_path}meta.csv', sep=',')
-    
-    filter_protein_intensities(path, metadata_path, 'href')
+  
     
     
     

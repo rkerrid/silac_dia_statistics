@@ -5,57 +5,107 @@ Created on Fri Jan 12 16:22:42 2024
 @author: robbi
 """
 from sdia_stats.preprocessing import adapted_imputation 
-from sdia_stats.preprocessing import imputation 
 from sdia_stats.preprocessing import normalize_samples
 from sdia_stats.preprocessing import filter_contams_and_non_valid_rows
 from sdia_stats.statistics import ttest
 from sdia_stats.visualization.interpret_ttest_results import loop_and_plot_results
 import pandas as pd
 
-# path = 'G:/My Drive/Data/data/eif4g optimization/protein intensities/'
-# # run sample norm first
 
-# group = {'08c': ['08a'],
-#           '18c': ['18a'],
-#           '28c': ['28a'],
-#           '26c': ['26a']
-         
+# # # # filter contams and valid values
+# meta = 'G:/My Drive/Data/data/20240306 eIF 5 lines/G1 E/'
+# # # normalize samples
+# path = 'G:/My Drive/Data/data/20240306 eIF 5 lines/3d G3 G2/protein_groups/'
+# path = 'G:/My Drive/Data/data/20240306 eIF 5 lines/3d G3 G2/3D only/protein_groups/'
+
+# filter_contams_and_non_valid_rows.filter_protein_intensities(path, meta)
+
+# group = {'3D_08-': ['3D_08+'], 
+#           '3D_28-':['3D_28+'],
+#           'G3_08-':['G3_08+'],
+#           'G2_28-':['G3_28+'],
+#           'G2_08-':['G2_08+'],
+#           'G2_28-':['G2_28+']
+#               }
+# path = 'G:/My Drive/Data/data/20240306 eIF 5 lines/3d G3 G2/protein_groups_filtered/'
+# path = 'G:/My Drive/Data/data/20240306 eIF 5 lines/3d G3 G2/3D only/protein_groups_filtered/'
+# normalize_samples.main(path, group)
+# control_samples = list(group.keys())
+# light, nsp, light_annotated, nsp_annotated, light_annotated_copy, nsp_annotated_copy = adapted_imputation.process_intensities(path,control_samples, plot_imputation=True)
+# path = 'G:/My Drive/Data/data/20240306 eIF 5 lines/3d G3 G2/protein_groups_filtered/imputed/'
+# path = 'G:/My Drive/Data/data/20240306 eIF 5 lines/3d G3 G2/3D only/protein_groups_filtered/imputed/'
+# meta = f'{path}meta.csv'
+# # # Set the treatments you would like to compare using the t-test
+# groups = {
+#     "3D08 vs control": ('3D_08+','3D_08-'),
+#     "3D28 vs control": ('3D_28+','3D_28-'),
+#     "G308 vs control": ('G3_08+','G3_08-'),
+#     "G328 vs control":('G3_28+','G3_28-'),
+#     "G208 vs control": ('G2_08+','G2_08-'),
+#     "G228 vs control":('G2_28+','G2_28-')
+#     }
+
+# ttest.ttest(path, meta, groups)
+# # path = 'G:/My Drive/Data/data/20240306 eIF 5 lines/3d G3 G2/protein_groups_filtered/imputed/ttest results/'
+# path = 'G:/My Drive/Data/data/20240306 eIF 5 lines/3d G3 G2/3D only/protein_groups_filtered/imputed/ttest results/'
+# pois = ["EIF4E", "EIF4E2", "EIF4E3", "EIF4G1", "EIF4G2", "EIF4G3", "EIF2S1", "EIF2A", "EIF5", "EIF5B", "EIF3A", "EIF3C", "EIF3D", "EIF4A1", "EIF4A2", "EIF4EP1", "EIF4EP2", "EEF2", "EIF2AK3", "EIF2AK4"]
+# # pois = ["EIF4E",  "EIF4G1", "EIF4G2", "EIF4G3"]
+# loop_and_plot_results(path, pois, interactive=False, uniprot=False)
+
+
+
+###############################################
+# meta = 'G:/My Drive/Data/data/20240306 eIF 5 lines/G1 E/'
+# path = 'G:/My Drive/Data/data/20240306 eIF 5 lines/G1 E/protein_groups/'
+
+# filter_contams_and_non_valid_rows.filter_protein_intensities(path, meta)
+
+# path = 'G:/My Drive/Data/data/20240306 eIF 5 lines/G1 E/protein_groups_filtered/'
+# group = {'G1_08-': ['G1_08+'], 
+#           'G1_28-':['G1_28+'],
+#           'E_08-':['E_08+'],
+#           'E_28-':['E_28+']          
 #               }
 
-# # filter contams and valid values
-metadata_path = 'G:/My Drive/Data/data/20240306 eIF 5 lines/3d G3 G2/'# filter_contams_and_non_valid_rows.filter_protein_intensities(path, metadata_path, 'href')
-# # normalize samples
-path = 'G:/My Drive/Data/data/20240306 eIF 5 lines/3d G3 G2/protein_groups/'
-filter_contams_and_non_valid_rows.filter_protein_intensities(path, metadata_path)
+# normalize_samples.main(path, group)
 
-group = {'3D_08-': ['3D_08+'], 
-         '3D_28-':['3D_28+'],
-         'G3_08-':['G3_08+'],
-         'G2_28-':['G3_28+'],
-         'G2_08-':['G2_08+'],
-         'G2_28-':['G2_28+']
-             }
-path = 'G:/My Drive/Data/data/20240306 eIF 5 lines/3d G3 G2/protein_groups_filtered/'
-normalize_samples.main(path, group)
-control_samples = list(group.keys())
-light, nsp, light_annotated, nsp_annotated, light_annotated_copy, nsp_annotated_copy = adapted_imputation.process_intensities(path,control_samples, plot_imputation=True)
-path = 'G:/My Drive/Data/data/20240306 eIF 5 lines/3d G3 G2/protein_groups_filtered/imputed/'
-meta = f'{path}meta.csv'
-# # Set the treatments you would like to compare using the t-test
+# control_samples = list(group.keys())
+# light, nsp, light_annotated, nsp_annotated, light_annotated_copy, nsp_annotated_copy = adapted_imputation.process_intensities(path,control_samples, plot_imputation=True)
+
+meta = 'G:/My Drive/Data/data/20240306 eIF 5 lines/G1 E/meta.csv'
+path = 'G:/My Drive/Data/data/20240306 eIF 5 lines/G1 E/protein_groups_filtered/imputed/'
 groups = {
-    "3D08 vs control": ('3D_08+','3D_08-'),
-    "3D28 vs control": ('3D_28+','3D_28-'),
-    "G308 vs control": ('G3_08+','G3_08-'),
-    "G328 vs control":('G3_28+','G3_28-'),
-    "G208 vs control": ('G2_08+','G2_08-'),
-    "G228 vs control":('G2_28+','G2_28-')
+    "G108 vs control": ('G1_08+','G1_08-'),
+    "G128 vs control": ('G1_28+','G1_28-'),
+    "E08 vs control": ('E_08+','E_08-'),
+    "E28 vs control":('E_28+','E_28-')
+    
     }
 
 ttest.ttest(path, meta, groups)
-path = 'G:/My Drive/Data/data/eIF4F optimization/protein_groups/imputed/ttest results/'
+
+path = 'G:/My Drive/Data/data/20240306 eIF 5 lines/G1 E/protein_groups_filtered/imputed/ttest results/'
 pois = ["EIF4E", "EIF4E2", "EIF4E3", "EIF4G1", "EIF4G2", "EIF4G3", "EIF2S1", "EIF2A", "EIF5", "EIF5B", "EIF3A", "EIF3C", "EIF3D", "EIF4A1", "EIF4A2", "EIF4EP1", "EIF4EP2", "EEF2", "EIF2AK3", "EIF2AK4"]
-pois = ["EIF4E",  "EIF4G1", "EIF4G2", "EIF4G3"]
 loop_and_plot_results(path, pois, interactive=False, uniprot=False)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # path = 'G:/My Drive/Data/data/eIF4F optimization/protein intensities/'
 
