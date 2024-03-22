@@ -195,8 +195,8 @@ def apply_normalization(normalization_set, path, channel):
   
     return df_sample
 
-def main(path, group):
-    metadata = pd.read_csv(f'{path}meta.csv', sep=',')
+def main(path, group, meta):
+    metadata = pd.read_csv(f'{meta}', sep=',')
    
     normalization_factors, control_df_list = derive_normalization_factors(path, group)
     print(normalization_factors)
@@ -245,7 +245,7 @@ def save_combined_data(nsp_df_list, light_df_list, path, metadata):
     create_directory(path,'normalized')
     
 
-    metadata.to_csv(f"{path}normalized/meta.csv", sep=',', index=False)
+    # metadata.to_csv(f"{path}normalized/meta.csv", sep=',', index=False)
     light_complete_df.to_csv(f"{path}normalized/light.csv", sep=',', index=False)
     nsp_complete_df.to_csv(f"{path}normalized/nsp.csv", sep=',', index=False)
 

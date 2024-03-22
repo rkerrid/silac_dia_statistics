@@ -11,13 +11,15 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sdia_stats.utils.manage_directories import create_directory
 from icecream import ic
+
+# pd.set_option('display.max_rows', None)
 ic.enable()
 
 def import_metadata(path):
     """
     Import metadata from a given path.
     """
-    return pd.read_csv(f"{path}meta.csv")
+    return pd.read_csv(f"{path}")
 
 def subset_metadata(metadata, subset):
     """
@@ -61,7 +63,7 @@ def filter_valid_values(df, metadata):
     df['keep_row'] = df.apply(lambda row: row[metadata['Sample'].tolist()].notna().sum() >= 2, axis=1)
     return df[df['keep_row']].drop('keep_row', axis=1)
 
-def add_lowest_sample_mean_for_row(df, metadata):
+def add_lowest_sample_mean_for_row(df, metadata): # should this function just take lowest mean for control? Or median of at least two valid values per sample?
     df['lowest_mean'] = np.nan
 
     for group in metadata['Treatment'].unique():
@@ -70,7 +72,7 @@ def add_lowest_sample_mean_for_row(df, metadata):
 
         for index, row in df.iterrows():
             valid_values = row[cols].dropna()
-            if len(valid_values) == len(cols):
+            if len(valid_values) == len(cols): # if there are at least two value to obtain a mean for this protein
                 row_mean = valid_values.mean()
                 if pd.isna(df.at[index, 'lowest_mean']) or row_mean < df.at[index, 'lowest_mean']:
                     df.at[index, 'lowest_mean'] = row_mean
@@ -156,7 +158,9 @@ def impute_values(df, metadata, channel):
 
     # Update 'was_imputed' to True where NaNs were present before imputation
     df['was_imputed'] = nan_before_imputation.any(axis=1)
-
+    
+    print('Inspect df after all annotation')
+    df.to_csv('G:/My Drive/Data/data/240112 poc4 test/20240314 adapted pipeline/H/protein_groups_statistics/normalized/imputed/annotated.csv', sep=',')
     return df
 
 
@@ -170,7 +174,7 @@ def plot_histograms(df, title, metadata):
     imputed_vals = subset_data(imputed_vals, metadata)
     non_imputed = subset_data(non_imputed, metadata)
     
-    ic(imputed_vals.columns[1:])
+    # ic(imputed_vals.columns[1:])
     for col in imputed_vals.columns[1:]:
         plt.figure(figsize=(10, 6))
 
@@ -184,7 +188,7 @@ def plot_histograms(df, title, metadata):
 
 def annotate_df(df, metadata, channel, control_samples):
     print('annotate df with the lowest mean value of observed proteins within each sample group per row')
-    global_mu, global_std = get_global_imputation_values(df, metadata, channel,control_samples)
+    global_mu, global_std = get_global_imputation_values(df, metadata, channel, control_samples)
     df['global_mu'] = global_mu
     df['global_std'] = global_std
     df['mu_used_for_imputation'] = np.nan
@@ -193,12 +197,12 @@ def annotate_df(df, metadata, channel, control_samples):
         
     return df
     
-def process_intensities(path, control_samples, subset=[], plot_imputation=False):
+def process_intensities(path, control_samples, meta, subset=[], plot_imputation=False):
     """
     Main function to process protein intensities.
     """
     print('import data')
-    metadata = import_metadata(path)
+    metadata = import_metadata(meta)
     light, nsp = load_dataframes(path)
     print('Subset data')
     metadata = subset_metadata(metadata, subset)

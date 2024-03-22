@@ -92,21 +92,27 @@ import pandas as pd
 ########################################################################
 meta = 'G:/My Drive/Data/data/20240306 eIF 5 lines/G1 E/'
 path = 'G:/My Drive/Data/data/20240306 eIF 5 lines/G1 E/protein_groups/'
-path = 'G:/My Drive/Data/data/240112 poc4 test/20240314 adapted pipeline/protein_groups/'
-meta = 'G:/My Drive/Data/data/240112 poc4 test/20240314 adapted pipeline/protein_groups/'
+path = 'G:/My Drive/Data/data/240112 poc4 test/20240314 adapted pipeline/H but using only L and M/protein_groups/'
+path = 'G:/My Drive/Data/data/240112 poc4 test/20240314 adapted pipeline/H/protein_groups/'
+meta = 'G:/My Drive/Data/data/240112 poc4 test/20240314 adapted pipeline/H/meta.csv'
 
+# filter data
 filter_contams_and_non_valid_rows.filter_protein_intensities(path, meta)
 
-path = 'G:/My Drive/Data/data/240112 poc4 test/20240314 adapted pipeline/protein_groups_filtered/'
+# Sample normalization
+path = 'G:/My Drive/Data/data/240112 poc4 test/20240314 adapted pipeline/H/protein_groups_statistics/'
 group = {'control': ['FAC', 'DFO']          
               }
+normalize_samples.main(path, group, meta)
 
-normalize_samples.main(path, group)
-
+# Imputation
+path = 'G:/My Drive/Data/data/240112 poc4 test/20240314 adapted pipeline/H/protein_groups_statistics/normalized/'
 control_samples = list(group.keys())
-light, nsp, light_annotated, nsp_annotated, light_annotated_copy, nsp_annotated_copy = adapted_imputation.process_intensities(path,control_samples, plot_imputation=True)
-meta = 'G:/My Drive/Data/data/240112 poc4 test/20240314 adapted pipeline/protein_groups/meta.csv'
-path = 'G:/My Drive/Data/data/240112 poc4 test/20240314 adapted pipeline/protein_groups_filtered/imputed/'
+light, nsp, light_annotated, nsp_annotated, light_annotated_copy, nsp_annotated_copy = adapted_imputation.process_intensities(path, control_samples, meta, plot_imputation=True)
+
+
+# ttest
+path = 'G:/My Drive/Data/data/240112 poc4 test/20240314 adapted pipeline/protein_groups_statistics/imputed/'
 groups = {
     "FAC vs control": ('FAC','control'),
     "DFO vs control": ('DFO','control')

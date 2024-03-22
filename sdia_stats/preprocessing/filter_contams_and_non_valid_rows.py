@@ -22,11 +22,11 @@ def import_dataframe(path, channel):
 
 def save_filtered_data(light, nsp, metadata, path):
     new_path = f"{path}../"
-    create_directory(new_path,'protein_groups_filtered')
+    create_directory(new_path,'protein_groups_statistics')
 
-    metadata.to_csv(f"{new_path}protein_groups_filtered/meta.csv", sep=',', index=False)
-    light.to_csv(f"{new_path}protein_groups_filtered/light.csv", sep=',', index=False)
-    nsp.to_csv(f"{new_path}protein_groups_filtered/nsp.csv", sep=',', index=False)
+    metadata.to_csv(f"{new_path}protein_groups_statistics/meta.csv", sep=',', index=False)
+    light.to_csv(f"{new_path}protein_groups_statistics/light.csv", sep=',', index=False)
+    nsp.to_csv(f"{new_path}protein_groups_statistics/nsp.csv", sep=',', index=False)
     
     
 def log_transform(df):
@@ -93,7 +93,7 @@ def filter_df(df):
 
 def filter_protein_intensities(path, metadata_path):
     # import data
-    metadata = pd.read_csv(f'{metadata_path}meta.csv', sep=',')
+    metadata = pd.read_csv(f'{metadata_path}', sep=',')
     df_light = import_dataframe(path,  'light')
     df_nsp = import_dataframe(path,  'nsp')
     # log transform data
