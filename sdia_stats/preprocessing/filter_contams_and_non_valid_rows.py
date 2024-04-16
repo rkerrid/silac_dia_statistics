@@ -22,11 +22,11 @@ def import_dataframe(path, channel):
 
 def save_filtered_data(light, nsp, metadata, path):
     new_path = f"{path}../"
-    create_directory(new_path,'protein_groups_statistics')
+    create_directory(new_path,'statistics')
 
-    metadata.to_csv(f"{new_path}protein_groups_statistics/meta.csv", sep=',', index=False)
-    light.to_csv(f"{new_path}protein_groups_statistics/light.csv", sep=',', index=False)
-    nsp.to_csv(f"{new_path}protein_groups_statistics/nsp.csv", sep=',', index=False)
+    metadata.to_csv(f"{new_path}statistics/meta.csv", sep=',', index=False)
+    light.to_csv(f"{new_path}statistics/light.csv", sep=',', index=False)
+    nsp.to_csv(f"{new_path}statistics/nsp.csv", sep=',', index=False)
     
     
 def log_transform(df):
@@ -62,9 +62,9 @@ def filter_out_contams(df):
         print("contams_mask contains non-boolean values:", contams_mask[~contams_mask.isin([True, False])])
     
     contams_df = df[contams_mask]  # Dataframe with only contaminants
-    ic(contams_df)
+    # ic(contams_df)
     clean_df = df[~contams_mask]  # Dataframe without contaminants
-    ic(clean_df)
+    # ic(clean_df)
     return clean_df, contams_df
 
 def plot_histogram(df1, df2,title,label_df_1, label_df_2):

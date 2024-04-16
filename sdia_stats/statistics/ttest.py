@@ -15,6 +15,7 @@ from icecream import ic
 
 def generate_alphastats_objects(path, meta):
     meta_file = pd.read_csv(meta, sep=',')
+    path = f'{path}/imputed/'
     intensity_cols = meta_file['Sample'].values.tolist()
     # loader_total = alphastats.GenericLoader(f"{path}total.csv", 
     #                                   intensity_column = intensity_cols,

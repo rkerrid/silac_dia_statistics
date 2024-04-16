@@ -1,3 +1,13 @@
 Metadata-Version: 2.1
 Name: silac-dia-statistics
 Version: 0.1.0
+Requires-Dist: pandas>=1.0.0
+Requires-Dist: matplotlib>=3.0.0
+Requires-Dist: numpy>=1.18.0
+Requires-Dist: jupyterlab>=3.0.0
+Requires-Dist: spyder
+Requires-Dist: icecream
+Requires-Dist: seaborn
+Requires-Dist: fpdf
+Requires-Dist: tqdm
+Requires-Dist: alphastats@ git+https://github.com/MannLabs/alphapeptstats.git

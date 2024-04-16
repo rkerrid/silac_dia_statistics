@@ -12,6 +12,49 @@ from sdia_stats.visualization.interpret_ttest_results import loop_and_plot_resul
 import pandas as pd
 
 
+
+
+################################# srp
+
+
+# # # filter contams and valid values
+meta = 'G:/My Drive/Data/data/20240410 SRP AID/meta.csv'
+# # normalize samples
+path = 'G:/My Drive/Data/data/20240410 SRP AID/protein_groups/'
+
+filter_contams_and_non_valid_rows.filter_protein_intensities(path, meta)
+
+### normalize 
+group = {'54-': ['54+'], 
+          '68-':['68+'],
+          '72-':['72+']
+              }
+path = 'G:/My Drive/Data/data/20240410 SRP AID/protein_groups_statistics/'
+normalize_samples.main(path, group, meta)
+
+### imputation
+control_samples = list(group.keys())
+light, nsp, light_annotated, nsp_annotated, light_annotated_copy, nsp_annotated_copy = adapted_imputation.process_intensities(path,control_samples, meta, plot_imputation=True)
+
+### ttest
+path = 'G:/My Drive/Data/data/20240410 SRP AID/protein_groups_statistics/imputed/'
+# meta = f'{path}meta.csv'
+# # Set the treatments you would like to compare using the t-test
+groups = {
+    "54": ('54+','54-'),
+    "68": ('68+','68-'),
+    "72": ('72+','72-')
+    }
+
+ttest.ttest(path, meta, groups)
+# path = 'G:/My Drive/Data/data/20240306 eIF 5 lines/3d G3 G2/protein_groups_filtered/imputed/ttest results/'
+path = 'G:/My Drive/Data/data/20240410 SRP AID//protein_groups_statistics/imputed/ttest results/'
+pois = ["SRP54", "SRP68", "SRP72"]
+# pois = ["EIF4E",  "EIF4G1", "EIF4G2", "EIF4G3"]
+loop_and_plot_results(path, pois, interactive=False, uniprot=False)
+
+
+
 # # # # filter contams and valid values
 # meta = 'G:/My Drive/Data/data/20240306 eIF 5 lines/G1 E/'
 # # # normalize samples

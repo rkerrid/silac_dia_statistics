@@ -33,6 +33,7 @@ def load_dataframes(path):
     """
     Load dataframes from given path and quantification method.
     """
+    path = f'{path}/normalized/'
     light = pd.read_csv(f"{path}light.csv", sep=',')
     nsp = pd.read_csv(f"{path}nsp.csv", sep=',')
     return light, nsp
@@ -202,6 +203,7 @@ def process_intensities(path, control_samples, meta, subset=[], plot_imputation=
     Main function to process protein intensities.
     """
     print('import data')
+    path = f'{path}/statistics/'
     metadata = import_metadata(meta)
     light, nsp = load_dataframes(path)
     print('Subset data')
