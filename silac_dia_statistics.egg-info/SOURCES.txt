@@ -1,6 +1,7 @@
 README.md
 setup.py
 sdia_stats/__init__.py
+sdia_stats/qc.py
 sdia_stats/openai/__init__.py
 sdia_stats/openai/openai_api_test.py
 sdia_stats/preprocessing/__init__.py

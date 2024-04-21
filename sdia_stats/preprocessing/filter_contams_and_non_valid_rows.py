@@ -94,6 +94,7 @@ def filter_df(df):
 def filter_protein_intensities(path, metadata_path):
     # import data
     metadata = pd.read_csv(f'{metadata_path}', sep=',')
+    path = f'{path}/protein_groups/'
     df_light = import_dataframe(path,  'light')
     df_nsp = import_dataframe(path,  'nsp')
     # log transform data

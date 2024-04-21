@@ -20,7 +20,7 @@ import pandas as pd
 # # # filter contams and valid values
 meta = 'G:/My Drive/Data/data/20240410 SRP AID/meta.csv'
 # # normalize samples
-path = 'G:/My Drive/Data/data/20240410 SRP AID/protein_groups/'
+path = 'G:/My Drive/Data/data/20240410 SRP AID/'
 
 filter_contams_and_non_valid_rows.filter_protein_intensities(path, meta)
 
@@ -29,7 +29,7 @@ group = {'54-': ['54+'],
           '68-':['68+'],
           '72-':['72+']
               }
-path = 'G:/My Drive/Data/data/20240410 SRP AID/protein_groups_statistics/'
+path = 'G:/My Drive/Data/data/20240410 SRP AID/'
 normalize_samples.main(path, group, meta)
 
 ### imputation
@@ -37,7 +37,7 @@ control_samples = list(group.keys())
 light, nsp, light_annotated, nsp_annotated, light_annotated_copy, nsp_annotated_copy = adapted_imputation.process_intensities(path,control_samples, meta, plot_imputation=True)
 
 ### ttest
-path = 'G:/My Drive/Data/data/20240410 SRP AID/protein_groups_statistics/imputed/'
+path = 'G:/My Drive/Data/data/20240410 SRP AID/protein_groups_statistics/'
 # meta = f'{path}meta.csv'
 # # Set the treatments you would like to compare using the t-test
 groups = {

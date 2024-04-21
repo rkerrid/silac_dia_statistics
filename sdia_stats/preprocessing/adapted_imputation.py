@@ -13,7 +13,7 @@ from sdia_stats.utils.manage_directories import create_directory
 from icecream import ic
 
 # pd.set_option('display.max_rows', None)
-ic.enable()
+ic.disable()
 
 def import_metadata(path):
     """
