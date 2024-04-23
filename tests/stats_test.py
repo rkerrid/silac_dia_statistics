@@ -4,7 +4,7 @@ Created on Fri Jan 12 16:22:42 2024
 
 @author: robbi
 """
-from sdia_stats.preprocessing import adapted_imputation 
+from sdia_stats.preprocessing import imputation 
 from sdia_stats.preprocessing import normalize_samples
 from sdia_stats.preprocessing import filter_contams_and_non_valid_rows
 from sdia_stats.statistics import ttest
@@ -53,6 +53,37 @@ pois = ["SRP54", "SRP68", "SRP72"]
 # pois = ["EIF4E",  "EIF4G1", "EIF4G2", "EIF4G3"]
 loop_and_plot_results(path, pois, interactive=False, uniprot=False)
 
+
+
+
+path = 'G:/My Drive/Data/data/240112 poc4 test/20240314 adapted pipeline/H/'
+meta = 'G:/My Drive/Data/data/240112 poc4 test/20240314 adapted pipeline/H/meta.csv'
+
+
+filter_contams_and_non_valid_rows.filter_protein_intensities(path, meta)
+
+### normalize 
+group = {'control': ['DFO','FAC']
+              }
+# path = 'G:/My Drive/Data/data/240112 poc4 test/20240314 adapted pipeline/H/'
+normalize_samples.main(path, group, meta)
+
+### imputation
+control_samples = list(group.keys())
+light, nsp = imputation.perform_imputation(path, group, meta)
+
+groups = {
+    "FAC vs control": ('FAC','control'),
+    "DFO vs control": ('DFO','control')
+    
+    }
+path =  'G:/My Drive/Data/data/240112 poc4 test/20240314 adapted pipeline/H/statistics/'
+ttest.ttest(path, meta, groups)
+# path = 'G:/My Drive/Data/data/20240306 eIF 5 lines/3d G3 G2/protein_groups_filtered/imputed/ttest results/'
+path =  'G:/My Drive/Data/data/240112 poc4 test/20240314 adapted pipeline/H/statistics/ttest results/'
+# pois = ["SRP54", "SRP68", "SRP72"]
+pois = ['FTL','FTH1', 'TFRC']
+loop_and_plot_results(path, pois, interactive=False, uniprot=False)
 
 
 # # # # filter contams and valid values

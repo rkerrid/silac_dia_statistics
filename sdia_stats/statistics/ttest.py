@@ -15,7 +15,7 @@ from icecream import ic
 
 def generate_alphastats_objects(path, meta):
     meta_file = pd.read_csv(meta, sep=',')
-    path = f'{path}/imputed/'
+    path = f'{path}/statistics/imputed/'
     intensity_cols = meta_file['Sample'].values.tolist()
     # loader_total = alphastats.GenericLoader(f"{path}total.csv", 
     #                                   intensity_column = intensity_cols,
@@ -52,10 +52,12 @@ def generate_alphastats_objects(path, meta):
     return df_nsp, df_light  #, df_total
 
 def save_results(path, ttest, file_name):
-    create_directory(f'{path}', 'ttest results')
-    ttest.to_csv(f"{path}/ttest results/{file_name}",sep=',',index=False)
+    
+    create_directory(f'{path}/statistics/', 'ttest results')
+    ttest.to_csv(f"{path}/statistics/ttest results/{file_name}",sep=',',index=False)
 
 def ttest(path, meta, groups):
+    path
     nsp, light = generate_alphastats_objects(path, meta)
 
     # Iterate over the dictionary of groups
