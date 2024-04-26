@@ -77,10 +77,10 @@ groups = {
     "DFO vs control": ('DFO','control')
     
     }
-path =  'G:/My Drive/Data/data/240112 poc4 test/20240314 adapted pipeline/H/statistics/'
+# path =  'G:/My Drive/Data/data/240112 poc4 test/20240314 adapted pipeline/H/statistics/'
 ttest.ttest(path, meta, groups)
 # path = 'G:/My Drive/Data/data/20240306 eIF 5 lines/3d G3 G2/protein_groups_filtered/imputed/ttest results/'
-path =  'G:/My Drive/Data/data/240112 poc4 test/20240314 adapted pipeline/H/statistics/ttest results/'
+# path =  'G:/My Drive/Data/data/240112 poc4 test/20240314 adapted pipeline/H/statistics/ttest results/'
 # pois = ["SRP54", "SRP68", "SRP72"]
 pois = ['FTL','FTH1', 'TFRC']
 loop_and_plot_results(path, pois, interactive=False, uniprot=False)
