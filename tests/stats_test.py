@@ -29,15 +29,14 @@ group = {'54-': ['54+'],
           '68-':['68+'],
           '72-':['72+']
               }
-path = 'G:/My Drive/Data/data/20240410 SRP AID/'
+
 normalize_samples.main(path, group, meta)
 
 ### imputation
 control_samples = list(group.keys())
-light, nsp, light_annotated, nsp_annotated, light_annotated_copy, nsp_annotated_copy = adapted_imputation.process_intensities(path,control_samples, meta, plot_imputation=True)
+light, nsp = imputation.perform_imputation(path,group, meta)
 
 ### ttest
-path = 'G:/My Drive/Data/data/20240410 SRP AID/protein_groups_statistics/'
 # meta = f'{path}meta.csv'
 # # Set the treatments you would like to compare using the t-test
 groups = {
@@ -47,8 +46,7 @@ groups = {
     }
 
 ttest.ttest(path, meta, groups)
-# path = 'G:/My Drive/Data/data/20240306 eIF 5 lines/3d G3 G2/protein_groups_filtered/imputed/ttest results/'
-path = 'G:/My Drive/Data/data/20240410 SRP AID//protein_groups_statistics/imputed/ttest results/'
+
 pois = ["SRP54", "SRP68", "SRP72"]
 # pois = ["EIF4E",  "EIF4G1", "EIF4G2", "EIF4G3"]
 loop_and_plot_results(path, pois, interactive=False, uniprot=False)
