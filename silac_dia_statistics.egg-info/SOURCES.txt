@@ -7,9 +7,13 @@ sdia_stats/openai/openai_api_test.py
 sdia_stats/preprocessing/__init__.py
 sdia_stats/preprocessing/adapted_imputation.py
 sdia_stats/preprocessing/filter_contams_and_non_valid_rows.py
+sdia_stats/preprocessing/imputation.py
 sdia_stats/preprocessing/normalize_samples.py
 sdia_stats/preprocessing/utils/__init__.py
 sdia_stats/preprocessing/utils/manage_directories.py
+sdia_stats/qc/__init__.py
+sdia_stats/qc/correlation_qc.py
+sdia_stats/qc/normalization_qc.py
 sdia_stats/statistics/__init__.py
 sdia_stats/statistics/anova.py
 sdia_stats/statistics/ttest.py

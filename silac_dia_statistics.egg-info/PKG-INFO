@@ -1,5 +1,5 @@
 Metadata-Version: 2.1
-Name: silac-dia-statistics
+Name: silac_dia_statistics
 Version: 0.1.0
 Requires-Dist: pandas>=1.0.0
 Requires-Dist: matplotlib>=3.0.0
