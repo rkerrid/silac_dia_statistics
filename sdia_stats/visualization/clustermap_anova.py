@@ -12,7 +12,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from icecream import ic
 
-def anova_clustermap(df, path, samples, title, pval=0.01):
+def anova_clustermap(df, path, samples, title, pval=0.0001):
     filtered = df[df['ANOVA_pvalue']<pval]
     cols = ['Protein.Group']+samples
     filtered = filtered[cols]
@@ -53,6 +53,7 @@ if __name__ =='__main__':
     path = 'G:/My Drive/Data/data/poc4/H/imputed/normalized/for_anova/'
     path = 'G:/My Drive/Data/data/eif4g optimization/imputed/normalized/for_anova/'
     path = 'G:/My Drive/Data/data/example poc/H/imputed/normalized/anova_results/'
+    path = 'G:/My Drive/Data/analysis/20240712 starvation pilot/statistics/anova/'
     
     # samples = ['control_I', 'control_II', 'control_III', 'DFO_I','DFO_II','DFO_III']
     # samples = ['08a_1','08a_2','08a_3','18a_1','18a_2','18a_3','28a_1','28a_2','28a_3']

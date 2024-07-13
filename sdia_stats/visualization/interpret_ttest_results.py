@@ -16,6 +16,8 @@ import ipywidgets as widgets
 from IPython.display import display
 import os
 from sdia_stats.utils.manage_directories import create_directory
+from adjustText import adjust_text
+
 
 global significant_proteins_df
 significant_proteins_df = None
@@ -175,8 +177,7 @@ def create_volcano_plot(df, title, pois, uniprot, path):
     display(control_widgets, output, output_df, output_df_pois)
 
 
-
-def simple_volcano_plot(df, title, path, protein_list, uniprot, significance_level=0.05, fold_change=1):
+def simple_volcano_plot(df, title, path, protein_list, uniprot, significance_level=0.05, fold_change=1, label_significant_up=False):
     # Calculate -log10(p_value)
     df['-log10(p_value)'] = -np.log10(df['pval'])
 
@@ -197,7 +198,8 @@ def simple_volcano_plot(df, title, path, protein_list, uniprot, significance_lev
     df['protein_name'] = df['Protein.Group'].apply(lambda x: x.split('-')[1] if '-' in x else x)
     df['uniprot'] = df['Protein.Group'].apply(lambda x: x.split('-')[0] if '-' in x else x)
 
-    # Adding labels for proteins in the protein list
+    # Prepare text annotations
+    texts = []
     for protein in protein_list:
         if uniprot:
             protein_data = df[df['uniprot'] == protein]
@@ -205,7 +207,16 @@ def simple_volcano_plot(df, title, path, protein_list, uniprot, significance_lev
             protein_data = df[df['protein_name'] == protein]
 
         for _, row in protein_data.iterrows():
-            plt.text(row['log2fc'], row['-log10(p_value)'], row['protein_name'], fontsize=9, color='black')
+            texts.append(plt.text(row['log2fc'], row['-log10(p_value)'], row['protein_name'], fontsize=9, color='black'))
+
+    # Adding labels for significant proteins if label_significant_up is True
+    if label_significant_up:
+        for _, row in df_sig.iterrows():
+            if row['log2fc'] > 0 and row['-log10(p_value)'] > -np.log10(significance_level):
+                texts.append(plt.text(row['log2fc'], row['-log10(p_value)'], row['protein_name'], fontsize=9, color='blue'))
+
+    # Adjust text to avoid overlaps
+    adjust_text(texts, arrowprops=dict(arrowstyle='-', color='black', lw=0.5))
 
     # Adding horizontal line for significance level
     plt.axhline(y=-np.log10(significance_level), color='blue', linestyle='--')
@@ -221,6 +232,52 @@ def simple_volcano_plot(df, title, path, protein_list, uniprot, significance_lev
     plt.savefig(f'{path}{title}.png', format='png', dpi=300)
     
     plt.show()
+
+# def simple_volcano_plot(df, title, path, protein_list, uniprot, significance_level=0.05, fold_change=1):
+#     # Calculate -log10(p_value)
+#     df['-log10(p_value)'] = -np.log10(df['pval'])
+
+#     # Determine significant proteins based on cutoffs
+#     significant = df['-log10(p_value)'] >= -np.log10(significance_level)
+#     high_fold_change = np.abs(df['log2fc']) >= fold_change
+#     df['is_significant'] = significant & high_fold_change
+
+#     # Split the dataframe into significant and non-significant for plotting
+#     df_sig = df[df['is_significant']]
+#     df_non_sig = df[~df['is_significant']]
+
+#     # Plotting
+#     plt.figure(figsize=(10, 6))
+#     sns.scatterplot(data=df_non_sig, x='log2fc', y='-log10(p_value)', color='grey', alpha=0.5)
+#     sns.scatterplot(data=df_sig, x='log2fc', y='-log10(p_value)', color='red', alpha=0.5)
+    
+#     df['protein_name'] = df['Protein.Group'].apply(lambda x: x.split('-')[1] if '-' in x else x)
+#     df['uniprot'] = df['Protein.Group'].apply(lambda x: x.split('-')[0] if '-' in x else x)
+
+#     # Adding labels for proteins in the protein list
+#     for protein in protein_list:
+#         if uniprot:
+#             protein_data = df[df['uniprot'] == protein]
+#         else:
+#             protein_data = df[df['protein_name'] == protein]
+
+#         for _, row in protein_data.iterrows():
+#             plt.text(row['log2fc'], row['-log10(p_value)'], row['protein_name'], fontsize=9, color='black')
+
+#     # Adding horizontal line for significance level
+#     plt.axhline(y=-np.log10(significance_level), color='blue', linestyle='--')
+
+#     # Adding vertical lines for fold change
+#     plt.axvline(x=fold_change, color='green', linestyle='--')
+#     plt.axvline(x=-fold_change, color='green', linestyle='--')
+
+#     plt.title(title)
+#     plt.xlabel('Log2 Fold Change')
+#     plt.ylabel('-Log10(p-value)')
+    
+#     plt.savefig(f'{path}{title}.png', format='png', dpi=300)
+    
+#     plt.show()
 
 
 def reduce_df_size(df, top_n):

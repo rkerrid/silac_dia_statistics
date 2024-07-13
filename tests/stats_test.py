@@ -12,18 +12,23 @@ from sdia_stats.visualization.interpret_ttest_results import loop_and_plot_resul
 import pandas as pd
 
 
+
+
+
+
 ################################# starvation 
 
 
 # # # filter contams and valid values
-meta = 'G:/My Drive/Data/data/20240624 starvation pilot/meta.csv'
+meta = 'G:/My Drive/Data/main experiments/20240712 starvation pilot/meta.csv'
 # # normalize samples
-path = 'G:/My Drive/Data/data/20240624 starvation pilot/'
+path = 'G:/My Drive/Data/main experiments/20240712 starvation pilot/'
 
 filter_contams_and_non_valid_rows.filter_protein_intensities(path, meta)
 
 ### normalize 
-group = {'G1': ['G1_Aux']
+group = {'-F-A': ['-F+A','F-A','F+A']
+         
               }
 
 normalize_samples.main(path, group, meta)
@@ -36,7 +41,9 @@ light, nsp = imputation.perform_imputation(path,group, meta)
 # meta = f'{path}meta.csv'
 # # Set the treatments you would like to compare using the t-test
 groups = {
-    "G1 starvation pilot": ('G1_Aux','G1')
+    "Starvation": ('-F+A','-F-A'),
+    "FBS": ('F+A', 'F-A'),
+    
     }
 
 ttest.ttest(path, meta, groups)
